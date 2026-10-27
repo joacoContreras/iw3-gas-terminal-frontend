@@ -1,0 +1,85 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # 1. CI: Validación (Tests y Linter) en PRs y pushes a main
+  test-and-lint:
+    name: Run Tests & Linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar Linter
+        run: npm run lint
+
+      - name: Ejecutar Pruebas unitarias
+        run: npm test
+
+  # 2. CD: Build y Despliegue en la VM (solo se ejecuta tras un push a main exitoso)
+  deploy:
+    name: Build & Deploy to VM
+    needs: test-and-lint
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compilar imagen Docker en el Runner de GitHub
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL || 'http://143.0.100.187:8080/api/v1' }}" \
+            -t iw3-frontend:latest .
+          docker save iw3-frontend:latest | gzip > iw3-frontend.tar.gz
+
+      - name: Transferir imagen comprimida a la VM (SCP)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST || '143.0.100.187' }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          password: ${{ secrets.VM_PASSWORD }}
+          source: "iw3-frontend.tar.gz"
+          target: "~/"
+
+      - name: Cargar imagen y actualizar contenedor en la VM (SSH)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VM_HOST || '143.0.100.187' }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          password: ${{ secrets.VM_PASSWORD }}
+          script: |
+            echo "Cargando nueva imagen en Docker..."
+            docker load < ~/iw3-frontend.tar.gz
+            rm -f ~/iw3-frontend.tar.gz
+
+            echo "Reiniciando contenedor iw3-frontend..."
+            docker stop iw3-frontend || true
+            docker rm iw3-frontend || true
+
+            docker run -d \
+              --name iw3-frontend \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              iw3-frontend:latest
+
+            echo "Despliegue finalizado con éxito."
