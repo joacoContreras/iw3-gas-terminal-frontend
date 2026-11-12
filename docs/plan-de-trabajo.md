@@ -120,6 +120,11 @@ con `admin` siguen con 0 fallas; `./mvnw -B test` pasa con los tests nuevos.
 
 ### 4.2 Fase 2 — Alarma de temperatura por e-mail (consigna final, punto 3)
 
+> **Estado (12/11/2026): implementada, probada y pusheada.** Rama `final-fase-2-alarmas` del backend (20 commits; para mergear usar `merge/final-fase-2-alarmas`, ver `CLAUDE.md`). T1 a T8 y T10 hechas; **T9 (correo con cuenta real) pendiente de las credenciales SMTP**.
+> Resultados: 215 tests, Postman 219 pedidos y 483 aserciones, escenario real de 42 verificaciones (con un servidor SMTP de mentira), concurrencia de 40 lecturas con 1 alarma y 2 correos.
+> Dos defectos hallados probando y corregidos (remitente ausente y lista de destinatarios con valor por defecto). Contrato para el frontend: `Alarm { id, orderNumber, temperature, threshold, status, triggeredAt, emailSentAt, acknowledgedBy, acknowledgedAt, observation }` y `AlarmConfig { temperatureThreshold, recipientEmails }`.
+> Sin reintentos de envío: la UI debe mostrar «correo no enviado» cuando `emailSentAt` es nulo. Informe y guía de defensa en `docs/final-fase-2-alarmas.md` del backend.
+
 **Objetivo:** al recibir una lectura válida con temperatura sobre el umbral, crear una alarma y avisar por correo **una sola
 vez** hasta que un usuario autorizado la acepte.
 

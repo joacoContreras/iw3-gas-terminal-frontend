@@ -40,11 +40,15 @@ chequeo del deploy), y el deploy corrió en verde sobre ese commit: **la VM pudo
 las ramas del final. Reparación no destructiva preparada y pusheada: rama `restaurar-cierre-parcial` del backend (un commit sobre `origin/main`, árbol idéntico al entregado), **pendiente de PR y de
 la decisión del usuario**. Hasta entonces: no hacer `pull`, `push --force` ni `reset` en el backend.
 
+**Orden de integración del backend (verificado el 12/11/2026 con `git merge-tree`):** las ramas `final-fase-1-roles` y `final-fase-2-alarmas` parten del `main` limpio y, mergeadas a `origin/main`,
+dan **conflictos en 7 a 10 archivos** (historias distintas, ancestro común del 23/10). Se publicaron versiones reaplicadas sobre `origin/main`, con **el mismo árbol** (verificado) y sin conflictos, que se pueden
+mergear incluso con fast-forward: 1) `restaurar-cierre-parcial` (1 commit), 2) `merge/final-fase-1-roles` (+8 commits), 3) `merge/final-fase-2-alarmas` (+20 commits). Cada merge a `main` **redespliega la VM**.
+
 | Fase | Contenido | Repo | Estado |
 |---|---|---|---|
 | 0 | Línea base y puesta en marcha | ambos | **Completada** (Next 16.4.6; backend: 40 tests y 154 pedidos / 364 aserciones sin fallas) |
 | 1 | Roles (backend) | backend | **Implementada, probada y pusheada (12/11/2026)** a `origin/final-fase-1-roles` (7 commits, sin PR): 138 tests y Postman 186 pedidos / 428 aserciones sin fallas; informe en `docs/final-fase-1-roles.md` del backend. Falta el visto bueno del usuario |
-| 2 | Alarma de temperatura por e-mail (backend) | backend | Pendiente |
+| 2 | Alarma de temperatura por e-mail (backend) | backend | **Implementada, probada y pusheada (12/11/2026)**, rama `final-fase-2-alarmas` del backend (20 commits, sin PR): 215 tests, Postman 219 pedidos / 483 aserciones y escenario real con SMTP de mentira, sin fallas; informe en `docs/final-fase-2-alarmas.md` del backend. **Falta probar con una cuenta SMTP real** (D-12) |
 | 3 | Ajustes de contrato para el frontend y cierre del backend | backend | Pendiente |
 | 4 | Conexión real: cliente HTTP, tipos y errores | frontend | Pendiente |
 | 5 | Autenticación, sesión, rutas protegidas y roles en la UI | frontend | Pendiente |
