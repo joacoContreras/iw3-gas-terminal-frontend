@@ -12,10 +12,10 @@ import { ArrowLeft, RefreshCw, AlertCircle } from "lucide-react";
 function OrderReconciliationContent({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ orderNumber: string }>;
 }) {
   const resolvedParams = React.use(params);
-  const orderId = Number(resolvedParams.id);
+  const orderId = Number(resolvedParams.orderNumber);
 
   const { data, isLoading, error, refetch } = useReconciliation(orderId);
 
@@ -107,7 +107,7 @@ function OrderReconciliationContent({
 export default function OrderReconciliationPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ orderNumber: string }>;
 }) {
   return (
     <React.Suspense
