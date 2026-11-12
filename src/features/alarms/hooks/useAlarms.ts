@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Alarm, AlarmConfig } from "@/types/alarm";
 import { alarmsApi } from "../services/alarmsApi";
+import { useAuth } from "@/features/auth/context/AuthContext";
 
 export function useAlarms(pollingIntervalMs: number = 5000) {
   const [alarms, setAlarms] = React.useState<Alarm[]>([]);
@@ -10,12 +11,17 @@ export function useAlarms(pollingIntervalMs: number = 5000) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
+  // Solo se piden los datos que el rol puede ver: el backend respondería 403 y el polling lo repetiría cada 5 s.
+  const { can } = useAuth();
+  const canViewAlarms = can("alarms:view");
+  const canViewConfig = can("alarms:config:view");
+
   const fetchData = React.useCallback(async (silent = false) => {
     if (!silent) setIsLoading(true);
     try {
       const [alarmsData, configData] = await Promise.all([
-        alarmsApi.getAlarms(),
-        alarmsApi.getAlarmConfig(),
+        canViewAlarms ? alarmsApi.getAlarms() : Promise.resolve([]),
+        canViewConfig ? alarmsApi.getAlarmConfig() : Promise.resolve(null),
       ]);
       setAlarms(alarmsData);
       setConfig(configData);
@@ -25,13 +31,17 @@ export function useAlarms(pollingIntervalMs: number = 5000) {
     } finally {
       if (!silent) setIsLoading(false);
     }
-  }, []);
+  }, [canViewAlarms, canViewConfig]);
 
   React.useEffect(() => {
+    if (!canViewAlarms) {
+      setIsLoading(false);
+      return;
+    }
     fetchData(false);
     const interval = setInterval(() => fetchData(true), pollingIntervalMs);
     return () => clearInterval(interval);
-  }, [fetchData, pollingIntervalMs]);
+  }, [fetchData, canViewAlarms, pollingIntervalMs]);
 
   const pendingAlarms = alarms.filter((a) => a.status === "PENDING");
 
