@@ -1,65 +1,68 @@
 "use client";
 
 import * as React from "react";
-import { Order } from "@/types/order";
+import { usePolling } from "@/lib/use-polling";
 import { ordersApi } from "../services/ordersApi";
+import { errorMessage } from "@/services/api/client";
+import type { Order, OrderReading, OrderStatusLog, Page } from "@/types/api";
 
-export function useOrderDetail(orderId: number) {
-  const [order, setOrder] = React.useState<Order | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isClosing, setIsClosing] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+/** Mientras la orden está en carga (estado 2) llegan lecturas: se refresca seguido. En los demás estados, despacio. */
+const LIVE_MS = 2000;
+const IDLE_MS = 10000;
 
-  const fetchOrder = React.useCallback(
-    async (silent = false) => {
-      if (!silent) setIsLoading(true);
-      try {
-        const data = await ordersApi.getOrderById(orderId);
-        setOrder(data);
-        setError(null);
-      } catch (err: any) {
-        setError(err.message || "Error al cargar el detalle de la orden");
-      } finally {
-        if (!silent) setIsLoading(false);
-      }
+export const READINGS_PAGE_SIZE = 20;
+
+/** La orden (`GET /orders/{n}`), refrescada por *polling*. */
+export function useOrder(orderNumber: number) {
+  return usePolling<Order>((signal) => ordersApi.getOrder(orderNumber, signal), {
+    intervalMs: (order) => (order?.status === 2 ? LIVE_MS : IDLE_MS),
+    resetKey: String(orderNumber),
+    enabled: Number.isSafeInteger(orderNumber),
+  });
+}
+
+/** Historial de estados; se vuelve a pedir cuando cambia el estado de la orden. */
+export function useOrderStatusLog(orderNumber: number, status: number | undefined) {
+  return usePolling<OrderStatusLog[]>((signal) => ordersApi.getStatusLog(orderNumber, signal), {
+    intervalMs: null,
+    resetKey: `${orderNumber}|${status}`,
+    enabled: Number.isSafeInteger(orderNumber) && status !== undefined,
+  });
+}
+
+/**
+ * Lecturas guardadas (`GET /orders/{n}/details`, por `id` ascendente). `page = "last"` sigue las más recientes: pide la
+ * primera página para saber cuántas hay y, si hay más de una, la última. Se refresca solo mientras hay carga en curso.
+ */
+export function useOrderReadings(orderNumber: number, page: number | "last", live: boolean) {
+  return usePolling<Page<OrderReading>>(
+    async (signal) => {
+      if (page !== "last") return ordersApi.getReadings(orderNumber, page, READINGS_PAGE_SIZE, signal);
+      const first = await ordersApi.getReadings(orderNumber, 0, READINGS_PAGE_SIZE, signal);
+      if (first.page.totalPages <= 1) return first;
+      return ordersApi.getReadings(orderNumber, first.page.totalPages - 1, READINGS_PAGE_SIZE, signal);
     },
-    [orderId]
+    { intervalMs: live ? LIVE_MS + 1000 : null, resetKey: `${orderNumber}|${page}`, enabled: Number.isSafeInteger(orderNumber) },
   );
+}
 
-  React.useEffect(() => {
-    fetchOrder(false);
+/** Cierre de la orden para carga (Punto 4). Muestra el mensaje real del backend (409 si ya no está en estado 2). */
+export function useCloseOrder(orderNumber: number, onClosed: () => void) {
+  const [isClosing, setIsClosing] = React.useState(false);
+  const [closeError, setCloseError] = React.useState<string | null>(null);
 
-    // If order is active in state 2 (loading), poll every 1.5 seconds for live telemetry!
-    let interval: NodeJS.Timeout | null = null;
-    interval = setInterval(() => {
-      fetchOrder(true);
-    }, 1500);
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [fetchOrder]);
-
-  const closeCurrentOrder = async () => {
-    if (!order) return;
+  const close = React.useCallback(async () => {
     setIsClosing(true);
+    setCloseError(null);
     try {
-      const updated = await ordersApi.closeOrder(order.id);
-      setOrder(updated);
-    } catch (err: any) {
-      setError(err.message || "No se pudo cerrar la orden");
-      throw err;
+      await ordersApi.closeOrder(orderNumber);
+    } catch (err) {
+      setCloseError(errorMessage(err, "No se pudo cerrar la orden"));
     } finally {
       setIsClosing(false);
+      onClosed(); // se vuelve a leer la orden: si el 409 fue porque otra persona la cerró, se ve el estado nuevo
     }
-  };
+  }, [orderNumber, onClosed]);
 
-  return {
-    order,
-    isLoading,
-    isClosing,
-    error,
-    refetch: () => fetchOrder(false),
-    closeCurrentOrder,
-  };
+  return { isClosing, closeError, close, clearCloseError: () => setCloseError(null) };
 }

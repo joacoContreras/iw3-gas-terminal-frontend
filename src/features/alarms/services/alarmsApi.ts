@@ -1,8 +1,16 @@
 import { apiClient } from "@/services/api/client";
+import { alarmsParams } from "@/lib/api-query";
+import type { Page, TemperatureAlarm } from "@/types/api";
 import { Alarm, AlarmConfig } from "@/types/alarm";
 import { MockStore } from "@/services/mock/mockStore";
 
 export const alarmsApi = {
+  /** Cantidad de alarmas pendientes (`totalElements` de `GET /alarms?status=PENDING&size=1`). Contrato real, sin respaldo. */
+  async countPending(signal?: AbortSignal): Promise<number> {
+    const page = await apiClient<Page<TemperatureAlarm>>("/alarms", { params: alarmsParams({ status: "PENDING", size: 1 }), signal });
+    return page.page.totalElements;
+  },
+
   async getAlarms(): Promise<Alarm[]> {
     try {
       const data = await apiClient<unknown>("/alarms");
