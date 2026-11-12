@@ -169,6 +169,7 @@ roles por endpoint (403), alarmas (`/alarms`, `/alarms/{id}/acknowledge`, `/alar
   enseña). Se pausa con la pestaña oculta y se limpia al desmontar.
 - **Sesión:** JWT en `localStorage`; las rutas se protegen en el cliente (guard en el layout); `401` cierra la sesión
   y vuelve al login; `403` muestra "sin permisos" sin cerrar la sesión.
+- **Dependencias:** el CI corre `npm ci` con Node 22 (npm 10). Después de cualquier cambio en `package.json` o en el lock, validar con `npx -y npm@10 ci --dry-run` (y mejor una copia limpia con `npm ci`, lint, `npm test` y `npm run build`); el lock generado con otro npm puede no pasar.
 - **TypeScript estricto, sin `any`**; el lint no debe tener advertencias nuevas. Textos de UI en español.
 - **Pruebas:** `npm test` corre con el runner de Node (`node --experimental-strip-types`); ampliar la lista de
   archivos de prueba al agregar módulos con lógica (cálculos, adaptadores, formateadores).

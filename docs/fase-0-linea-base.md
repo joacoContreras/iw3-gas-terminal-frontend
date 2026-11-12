@@ -72,7 +72,17 @@ Docker, el contenedor y la aplicación se apagaron al terminar. Docker Desktop r
 | T4 Tests del backend y Postman | Hecho |
 | T5 Informe | Este documento |
 
-## 7. Guía de defensa (parte frontend de la línea base)
+## 7. Incidente del `package-lock.json` (12/11/2026)
+
+Al mergear el PR #2, los dos workflows (el del PR y el del push a `main`) fallaron en `npm ci`, el primer paso: *«lock file's @emnapi/wasi-threads@1.2.1 does not satisfy 1.2.3 · Missing: @emnapi/core@…»*.
+Como fallaron antes del lint, los tests y el deploy, **la VM no se tocó**.
+
+- **Causa:** el lock que generé con `npm install` (Windows, npm 11) perdió las dependencias anidadas de `@emnapi` de `@tailwindcss/oxide-wasm32-wasi`; `npm ci` con npm 10 (el del CI) lo rechaza. Con el lock original (`cc6097f`) pasa.
+- **Falla de verificación mía:** validé lint, tests y build sobre la carpeta `node_modules` ya instalada y **no volví a correr `npm ci` desde el lock commiteado**.
+- **Arreglo:** regenerar el lock desde el original con `npm 10 install --package-lock-only` cambiando solo `next` y `eslint-config-next`. Réplica del CI en una copia limpia: `npm ci` (npm 10), lint (0 errores), 5 de 5 tests y build, en verde.
+- **Regla nueva** (sección 6 del `CLAUDE.md`): validar los cambios de dependencias con npm 10 y `npm ci` en copia limpia antes de commitear.
+
+## 8. Guía de defensa (parte frontend de la línea base)
 
 1. ¿Qué tecnologías usa el frontend y por qué hay un `Dockerfile` con tres etapas? (Next 16 con salida `standalone`: imagen mínima que solo trae el servidor.)
 2. ¿Por qué `NEXT_PUBLIC_API_URL` se pasa como `ARG` en el *build* y no al ejecutar el contenedor? (Las variables `NEXT_PUBLIC_*` se incrustan en el JavaScript al compilar.)
