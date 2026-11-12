@@ -10,9 +10,11 @@ import { Settings, Plus, Trash2, Check } from "lucide-react";
 interface AlarmConfigFormProps {
   config: AlarmConfig | null;
   onSave: (config: Partial<AlarmConfig>) => Promise<any>;
+  /** Solo lectura: quien no puede editar la configuración (el backend exige ADMIN) la ve sin poder cambiarla. */
+  readOnly?: boolean;
 }
 
-export function AlarmConfigForm({ config, onSave }: AlarmConfigFormProps) {
+export function AlarmConfigForm({ config, onSave, readOnly = false }: AlarmConfigFormProps) {
   const [threshold, setThreshold] = React.useState<number>(
     config?.temperatureThreshold || 22.0
   );
@@ -82,6 +84,7 @@ export function AlarmConfigForm({ config, onSave }: AlarmConfigFormProps) {
               value={threshold}
               onChange={(e) => setThreshold(parseFloat(e.target.value) || 0)}
               className="font-mono text-base font-bold"
+              disabled={readOnly}
             />
             <span className="text-sm font-semibold text-zinc-500">°C</span>
           </div>
@@ -105,6 +108,8 @@ export function AlarmConfigForm({ config, onSave }: AlarmConfigFormProps) {
                 {email}
                 <button
                   type="button"
+                  disabled={readOnly}
+                  hidden={readOnly}
                   onClick={() => handleRemoveEmail(email)}
                   className="text-zinc-400 hover:text-rose-500 transition-colors cursor-pointer"
                 >
@@ -114,6 +119,7 @@ export function AlarmConfigForm({ config, onSave }: AlarmConfigFormProps) {
             ))}
           </div>
 
+          {!readOnly && (
           <form onSubmit={handleAddEmail} className="flex gap-2 max-w-md pt-1">
             <Input
               type="email"
@@ -126,6 +132,7 @@ export function AlarmConfigForm({ config, onSave }: AlarmConfigFormProps) {
               Agregar
             </Button>
           </form>
+          )}
         </div>
 
         {/* Botón Guardar */}
@@ -137,13 +144,17 @@ export function AlarmConfigForm({ config, onSave }: AlarmConfigFormProps) {
               </span>
             )}
           </div>
-          <Button
-            onClick={handleSave}
-            isLoading={isSaving}
-            className="gap-2"
-          >
-            Guardar Configuración
-          </Button>
+          {readOnly ? (
+            <span className="text-xs text-zinc-500">Solo un administrador puede modificar la configuración.</span>
+          ) : (
+            <Button
+              onClick={handleSave}
+              isLoading={isSaving}
+              className="gap-2"
+            >
+              Guardar Configuración
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

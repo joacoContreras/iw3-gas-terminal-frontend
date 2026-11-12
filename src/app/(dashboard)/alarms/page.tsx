@@ -8,6 +8,7 @@ import { AlarmAckModal } from "@/features/alarms/components/alarm-ack-modal";
 import { Alarm } from "@/types/alarm";
 import { RefreshCw, SlidersHorizontal, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/features/auth/context/AuthContext";
 
 export default function AlarmsManagementPage() {
   const {
@@ -19,6 +20,11 @@ export default function AlarmsManagementPage() {
     acknowledge,
     updateConfig,
   } = useAlarms();
+
+  const { can } = useAuth();
+  const canViewConfig = can("alarms:config:view");
+  const canEditConfig = can("alarms:config:edit");
+  const canAcknowledge = can("alarms:acknowledge");
 
   const [selectedAlarmForAck, setSelectedAlarmForAck] =
     React.useState<Alarm | null>(null);
@@ -57,17 +63,19 @@ export default function AlarmsManagementPage() {
               <List className="h-3.5 w-3.5" />
               Historial ({alarms.length})
             </button>
-            <button
-              onClick={() => setActiveTab("config")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === "config"
-                  ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs"
-                  : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400"
-              }`}
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              Configurar Umbral
-            </button>
+            {canViewConfig && (
+              <button
+                onClick={() => setActiveTab("config")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  activeTab === "config"
+                    ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs"
+                    : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400"
+                }`}
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                Configurar Umbral
+              </button>
+            )}
           </div>
 
           <Button variant="outline" size="sm" onClick={() => refetch()} isLoading={isLoading}>
@@ -77,24 +85,26 @@ export default function AlarmsManagementPage() {
       </div>
 
       {/* Tabs */}
-      {activeTab === "list" ? (
+      {activeTab === "list" || !canViewConfig ? (
         <AlarmTable
           alarms={alarms}
           onOpenAckModal={(alarm) => setSelectedAlarmForAck(alarm)}
         />
       ) : (
         <div className="max-w-2xl">
-          <AlarmConfigForm config={config} onSave={updateConfig} />
+          <AlarmConfigForm config={config} onSave={updateConfig} readOnly={!canEditConfig} />
         </div>
       )}
 
       {/* Modal Aceptación */}
-      <AlarmAckModal
-        isOpen={Boolean(selectedAlarmForAck)}
-        alarm={selectedAlarmForAck}
-        onClose={() => setSelectedAlarmForAck(null)}
-        onAcknowledge={acknowledge}
-      />
+      {canAcknowledge && (
+        <AlarmAckModal
+          isOpen={Boolean(selectedAlarmForAck)}
+          alarm={selectedAlarmForAck}
+          onClose={() => setSelectedAlarmForAck(null)}
+          onAcknowledge={acknowledge}
+        />
+      )}
     </div>
   );
 }
