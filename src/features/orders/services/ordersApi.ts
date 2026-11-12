@@ -5,7 +5,10 @@ import { MockStore } from "@/services/mock/mockStore";
 export const ordersApi = {
   async getOrders(params?: { state?: number; search?: string }): Promise<Order[]> {
     try {
-      return await apiClient<Order[]>("/orders", { params });
+      const data = await apiClient<unknown>("/orders", { params });
+      // LEGACY (hasta la Fase 6): el backend real responde una página `{ content, page }`, no el arreglo que esta pantalla
+      // espera. Sin esta guarda, `.filter` rompería la pantalla; la Fase 6 la reescribe con los tipos reales.
+      return Array.isArray(data) ? (data as Order[]) : [];
     } catch {
       // Offline / fallback to in-memory store
       let orders = MockStore.getOrders();

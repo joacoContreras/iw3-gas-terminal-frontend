@@ -13,7 +13,7 @@
  * Este módulo no tiene imports en tiempo de ejecución a propósito: así lo prueba `npm test` con el ejecutor de Node.
  */
 
-const TOKEN_STORAGE_KEY = "iw3_auth_token";
+export const TOKEN_STORAGE_KEY = "iw3_auth_token";
 
 /** Evento de `window` que el proveedor de sesión escucha para cerrar la sesión (401 con token enviado). */
 export const UNAUTHORIZED_EVENT = "iw3:unauthorized";

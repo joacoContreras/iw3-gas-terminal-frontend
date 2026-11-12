@@ -3,50 +3,43 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/context/AuthContext";
+import { errorMessage } from "@/services/api/client";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Flame } from "lucide-react";
 
+const END_REASON_TEXT = {
+  expired: "Tu sesión venció. Iniciá sesión de nuevo.",
+  unauthorized: "El servidor rechazó tu sesión. Iniciá sesión de nuevo.",
+} as const;
+
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isLoading: isRestoring, endReason } = useAuth();
 
-  const [username, setUsername] = React.useState("admin_terminal");
-  const [password, setPassword] = React.useState("password123");
-  const [isLoading, setIsLoading] = React.useState(false);
+  // Sin usuario ni contraseña por defecto: los datos los escribe la persona que entra.
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  // Quien ya tiene sesión no necesita ver el login.
   React.useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/");
-    }
+    if (isAuthenticated) router.replace("/");
   }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSubmitting(true);
     setError(null);
     try {
-      await login(username, password);
-      router.push("/");
-    } catch (err: any) {
-      setError(err.message || "Credenciales incorrectas");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleQuickLogin = async (userRole: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      await login(userRole, "admin123");
-      router.push("/");
-    } catch (err: any) {
-      setError(err.message || "Error al iniciar sesión");
-    } finally {
-      setIsLoading(false);
+      await login(username.trim(), password);
+      router.replace("/");
+    } catch (err) {
+      // Mensaje real del backend ("Usuario o contraseña incorrectos") o del cliente (sin conexión, tiempo agotado).
+      setError(errorMessage(err, "No se pudo iniciar sesión"));
+      setIsSubmitting(false);
     }
   };
 
@@ -65,72 +58,53 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pt-2">
+          {endReason && !error && (
+            <p role="status" className="rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 px-3 py-2 text-xs font-medium text-amber-800 dark:text-amber-300">
+              {END_REASON_TEXT[endReason]}
+            </p>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="Usuario:"
               type="text"
+              name="username"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Ej: operador, admin"
               required
+              disabled={isSubmitting || isRestoring}
             />
 
             <Input
               label="Contraseña:"
               type="password"
+              name="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
               required
+              disabled={isSubmitting || isRestoring}
             />
 
-            {error && <p className="text-xs text-rose-500 font-medium">{error}</p>}
+            {error && (
+              <p role="alert" className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                {error}
+              </p>
+            )}
 
             <Button
               type="submit"
               variant="primary"
               className="w-full shadow-sm font-semibold"
-              isLoading={isLoading}
+              isLoading={isSubmitting}
+              disabled={isRestoring}
             >
               Iniciar Sesión
             </Button>
           </form>
-
-          {/* Quick Demo Logins */}
-          <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800">
-            <span className="text-[11px] font-semibold text-zinc-400 block mb-2 uppercase tracking-wider text-center">
-              Acceso Rápido de Demostración
-            </span>
-            <div className="grid grid-cols-3 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => handleQuickLogin("admin")}
-                className="text-xs h-8"
-              >
-                Admin
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => handleQuickLogin("supervisor")}
-                className="text-xs h-8"
-              >
-                Supervisor
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => handleQuickLogin("operador")}
-                className="text-xs h-8"
-              >
-                Operador
-              </Button>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
