@@ -5,7 +5,10 @@ import { MockStore } from "@/services/mock/mockStore";
 export const alarmsApi = {
   async getAlarms(): Promise<Alarm[]> {
     try {
-      return await apiClient<Alarm[]>("/alarms");
+      const data = await apiClient<unknown>("/alarms");
+      // LEGACY (hasta la Fase 8): el backend real responde una página `{ content, page }`, no el arreglo que esta pantalla
+      // espera. Sin esta guarda, `.filter` rompería la pantalla; la Fase 8 la reescribe con los tipos reales.
+      return Array.isArray(data) ? (data as Alarm[]) : [];
     } catch {
       return MockStore.getAlarms();
     }
