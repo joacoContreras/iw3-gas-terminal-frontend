@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Alarm } from "@/types/alarm";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PermissionGate } from "@/components/shared/permission-gate";
 import { formatTemperature, formatDateTime } from "@/lib/formatters";
 import { AlertCircle, CheckCircle2, Eye, ShieldAlert } from "lucide-react";
 
@@ -119,14 +120,19 @@ export function AlarmTable({ alarms, onOpenAckModal }: AlarmTableProps) {
                 {/* Acción */}
                 <td className="py-4 px-4 text-right">
                   {isPending ? (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => onOpenAckModal(alarm)}
-                      className="h-8 px-3"
+                    <PermissionGate
+                      permission="alarms:acknowledge"
+                      fallback={<span className="text-[11px] text-zinc-400">Requiere supervisor</span>}
                     >
-                      Aceptar
-                    </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => onOpenAckModal(alarm)}
+                        className="h-8 px-3"
+                      >
+                        Aceptar
+                      </Button>
+                    </PermissionGate>
                   ) : (
                     <Link href={`/orders/${alarm.orderId}`}>
                       <Button variant="ghost" size="sm" className="h-8 px-2 text-zinc-400 hover:text-zinc-700">

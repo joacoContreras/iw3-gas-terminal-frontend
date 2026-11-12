@@ -9,6 +9,7 @@ import { LiveLoadMeter } from "@/features/orders/components/live-load-meter";
 import { EtaDisplay } from "@/features/orders/components/eta-display";
 import { TruckCisternsCard } from "@/features/orders/components/truck-cisterns-card";
 import { Button } from "@/components/ui/button";
+import { PermissionGate } from "@/components/shared/permission-gate";
 import { formatKg, formatDateTime } from "@/lib/formatters";
 import {
   ArrowLeft,
@@ -90,16 +91,18 @@ function OrderDetailContent({
 
           {/* Estado 2: Botón de Cerrar Orden */}
           {order.state === 2 && (
-            <Button
-              variant="danger"
-              size="sm"
-              isLoading={isClosing}
-              onClick={closeCurrentOrder}
-              className="gap-1.5 shadow-sm"
-            >
-              <Lock className="h-4 w-4" />
-              Cerrar Orden para Carga
-            </Button>
+            <PermissionGate permission="orders:close">
+              <Button
+                variant="danger"
+                size="sm"
+                isLoading={isClosing}
+                onClick={closeCurrentOrder}
+                className="gap-1.5 shadow-sm"
+              >
+                <Lock className="h-4 w-4" />
+                Cerrar Orden para Carga
+              </Button>
+            </PermissionGate>
           )}
 
           {/* Estado 4: Botón de Conciliación */}
