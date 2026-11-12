@@ -1,0 +1,205 @@
+# CLAUDE.md — Contexto del proyecto (frontend + cierre del examen final)
+
+> Leé este archivo completo antes de tocar nada. Es la memoria compartida: dice **dónde estamos, qué reglas
+> se siguen y qué contrato tiene el backend**. Actualizá la sección 2 al cerrar cada fase. El plan detallado
+> está en `docs/plan-de-trabajo.md`. Leé también `AGENTS.md` (Next.js 16 difiere de lo conocido: ver regla 9).
+
+## 1. Qué es este proyecto
+
+- **Materia:** Ingeniería Web III, 2026. **Examen final** del trabajo integrador (grupo de hasta 3 personas;
+  la evaluación es individual y exige entender **todo** el sistema).
+- **Qué se entrega:** el backend del segundo parcial (ya aprobado y desplegado) **integrado** con un
+  **frontend**, más lo que el final exige y el backend todavía no tiene: **roles** y **alarma de temperatura por e-mail**.
+- **Fuente oficial de la consigna:** `Trabajo Integrador - Ingeniería Web 3 2026.pdf` (en la raíz de este repo).
+  Ante cualquier duda manda el PDF. Resumen en la sección 4.
+- **Dos repositorios, una carpeta** (`Ingenieria Web III (TRABAJO GRUPAL)/`):
+  - `iw3-gas-terminal-frontend` (este): Next.js 16.4, React 19.3, TypeScript, Tailwind 4. GitHub `joacoContreras/iw3-gas-terminal-frontend`.
+  - `iw3-gas-terminal-backend`: Java 21, Spring Boot 4.1, MySQL 8, JWT. Su `CLAUDE.md` (secciones 6 y 7) es la fuente del contrato de la API.
+  - `Ingenieria Web III ( Matio )/`: material de la cátedra. **Solo referencia: no se modifica.**
+- **Idioma:** documentación, comentarios y textos de la UI en español; identificadores (código, JSON, rutas) en inglés.
+- **Fecha del final:** a confirmar con la cátedra.
+
+## 2. Dónde estamos hoy
+
+**Última actualización:** 12/11/2026 — Fases 0 y 1 hechas; la Fase 1 está pusheada como rama (sin Pull Request: falta resolver el `origin/main` del backend).
+
+**Aviso del repositorio del backend (12/11/2026):** `origin/main` del backend fue reescrito con un push forzado (567 commits, 120 con
+`Co-Authored-By: Claude`, sin el contenido del cierre del parcial: `/demo` cerrado, Swagger completo, chequeo del deploy). El `main` local
+(317 commits, 0 trailers) es la versión entregada y es la base de las ramas del final. **No hacer `pull`, `push` ni `reset` en el backend** hasta que
+el usuario decida cuál historia es la correcta. Si la VM se redesplegó desde `origin/main` después del 05/11, podría estar corriendo la versión anterior al cierre.
+
+| Fase | Contenido | Repo | Estado |
+|---|---|---|---|
+| 0 | Línea base y puesta en marcha | ambos | **Completada** (Next 16.4.6; backend: 40 tests y 154 pedidos / 364 aserciones sin fallas) |
+| 1 | Roles (backend) | backend | **Implementada, probada y pusheada (12/11/2026)** a `origin/final-fase-1-roles` (7 commits, sin PR): 138 tests y Postman 186 pedidos / 428 aserciones sin fallas; informe en `docs/final-fase-1-roles.md` del backend. Falta el visto bueno del usuario |
+| 2 | Alarma de temperatura por e-mail (backend) | backend | Pendiente |
+| 3 | Ajustes de contrato para el frontend y cierre del backend | backend | Pendiente |
+| 4 | Conexión real: cliente HTTP, tipos y errores | frontend | Pendiente |
+| 5 | Autenticación, sesión, rutas protegidas y roles en la UI | frontend | Pendiente |
+| 6 | Órdenes: listado, filtros, monitoreo, detalle, ETA y tiempo transcurrido | frontend | Pendiente |
+| 7 | Conciliación | frontend | Pendiente |
+| 8 | Alarmas en la UI | frontend | Pendiente |
+| 9 | Simulador de integración real | frontend | Pendiente |
+| 10 | Calidad, despliegue y ensayo de defensa | ambos | Pendiente |
+
+**No avanzar de fase sin autorización explícita del usuario.**
+
+**Hallazgo que origina este plan (12/11/2026):** el frontend heredado se escribió contra una API imaginada
+(rutas y campos que el backend real no tiene) y **cae silenciosamente a un mock en memoria** ante cualquier error,
+así que parece funcionar sin backend. Además crea un usuario admin con token falso si no hay sesión, acepta
+cualquier credencial si `/login` falla y no protege rutas. Detalle y tabla de diferencias en `docs/plan-de-trabajo.md` (sección 2).
+
+## 3. Reglas de trabajo
+
+1. **Una fase por vez.** Antes de empezar una fase se presenta: objetivo, archivos probables, dependencias y
+   criterios de aceptación, y se espera la aprobación. Al terminarla se presenta un resumen ejecutivo y se espera
+   la autorización para continuar.
+2. **El backend es la fuente de verdad.** El frontend se adapta al contrato real (sección 5), nunca al revés. Si
+   algo falta en el backend, se anota, se propone y se pide autorización: no se inventa en el frontend.
+3. **Respetar la metodología de la cátedra** en el backend (`I*Business` + `*Business`, excepciones *checked*,
+   `try/catch` por método en el controller, `StandartResponse`, constantes en `Constants`, eventos de Spring,
+   `EmailBusiness`, `@Scheduled`, `@PreAuthorize`). La prioridad es el enfoque de la cátedra, no una arquitectura más moderna.
+4. **Sin mocks ni atajos de demo en el código de producción.** Nada de datos falsos, tokens falsos ni `catch` que
+   esconda un error del backend. Cada error se muestra al usuario con el mensaje real.
+5. **Sin sorpresas:** no agregar dependencias innecesarias, no refactorizar fuera de la fase, no eliminar
+   funcionalidad sin explicarlo, no ampliar el alcance sin consultar.
+6. **Honestidad:** no afirmar que una prueba pasó si no se ejecutó; no ocultar errores; si falta un dato, decirlo
+   antes de asumirlo; distinguir **requisito de la consigna** de **decisión de diseño**.
+7. **Seguridad:** no inventar credenciales ni subir secretos. Las del entorno local (`root/root`, `admin/admin123`)
+   son **solo de desarrollo**. Las credenciales SMTP, la clave JWT y los accesos a la VM **nunca** van al repo
+   (variables de entorno o `.env.local`, ya ignorado por `.gitignore`).
+8. **Git (en ambos repos):**
+   - **El `main` del backend no se toca** salvo por Pull Request aprobado: la entrega del parcial queda intacta. El
+     trabajo del final va en ramas `final-fase-N-<tema>` (se pueden encadenar si la anterior no está integrada).
+   - **Frontend:** una rama por fase, `fase-N-<tema>`, desde `main` actualizado.
+   - **Commits atómicos de no más de 100 líneas** (agregadas + borradas), en español, con formato
+     `tipo(ámbito): descripción` (`feat`, `fix`, `docs`, `chore`, `test`, `build`, `refactor`).
+   - **Sin coautoría de Claude:** los commits y los Pull Request **no** llevan `Co-Authored-By: Claude …` ni
+     "Generated with Claude Code". Esta regla tiene prioridad sobre la atribución por defecto de Claude Code.
+   - **No se hace commit, push ni merge hasta que el usuario lo pide.** Todo cambio a `main` entra por Pull Request
+     (acuerdo del equipo: aprobación de 3 de 4 integrantes; GitHub no lo exige, se cumple a mano: abrir como *draft*).
+   - `main` del frontend **se despliega solo** (GitHub Actions) y `main` del backend también: ningún merge sin
+     autorización, y nunca tocar la VM ni `~/infra` sin que el usuario lo pida.
+9. **Next.js 16 no es el que se conoce.** Antes de escribir código de Next, leer la guía correspondiente en
+   `node_modules/next/dist/docs/` (requiere `npm ci`) y respetar los avisos de deprecación. No asumir APIs de memoria.
+10. **Documentación por fase** en `docs/fase-N-<tema>.md`: *informe breve* (qué se hizo y por qué, archivos tocados
+    con motivo, recorrido de los datos, pruebas **ejecutadas** con su resultado, limitaciones) y *guía de defensa*
+    (**≥ 8 preguntas con respuesta** y qué debe poder explicar cada integrante). En el backend, además, se
+    respeta su regla de documentación (`CLAUDE.md` del backend, regla 8).
+11. **Una fase está terminada** cuando: la funcionalidad está implementada y respeta la cátedra y la consigna;
+    `npm run lint`, `npm test` y `npm run build` pasan (frontend) o `./mvnw -B test` y la colección Postman pasan
+    (backend); se probó **contra el backend real** (no contra un mock) y el resultado quedó escrito; existe el
+    documento de la fase; las limitaciones están registradas; y el usuario lo autorizó.
+12. **Estudiar es parte del trabajo:** la defensa es individual. Cada fase termina con la explicación del flujo
+    en el formato punto por punto que usa el usuario (paso a paso, con archivo y línea).
+
+## 4. La consigna del final, resumida
+
+> Ante cualquier duda manda el PDF. Los Puntos 1 a 5 (proceso) y el modelo de datos ya están implementados en el backend.
+
+| # | Requisito del examen final | Dónde se resuelve |
+|---|---|---|
+| 1 | 100 % de los endpoints (Puntos 1 a 5) | Backend, **ya hecho** |
+| 2 | **Roles** de usuario que regulen el consumo de las APIs | Fase 1 (backend) y Fase 5 (UI) |
+| 3 | **Alarma de temperatura** en el Punto 3: umbral configurable, **correo** a destinatarios configurables, **sin reenvío hasta que un usuario autorizado la acepte** | Fase 2 (backend) y Fase 8 (UI) |
+| 4a | Frontend: **autenticación** de usuarios | Fase 5 |
+| 4b | **Administración y monitoreo en tiempo real** de las órdenes: número, estado, camión, preset, carga actual, últimas temperatura, densidad y caudal, **filtros y orden** por estado u otros criterios | Fase 6 |
+| 4c | **ETA** (preset, masa acumulada y caudal) | Fase 6 |
+| 4d | **Tiempo transcurrido** desde el inicio de la carga (**solo órdenes en estado 2**) | Fase 6 |
+| 4e | **Gestión de alarmas:** verlas, **aceptarlas**, registro de usuario, fecha, hora y observación (opcional) | Fase 8 |
+| 4f | **Conciliaciones**, **solo para órdenes en estado 4** | Fase 7 |
+
+Estados de la orden: 1 Pendiente de pesaje inicial · 2 Con pesaje inicial registrado (aquí llegan las lecturas) ·
+3 Cerrada para carga · 4 Finalizada. Secuenciales y unidireccionales.
+
+## 5. Contrato real del backend (lo que el frontend DEBE usar)
+
+Base: `{NEXT_PUBLIC_API_URL}` = `http://localhost:8080/api/v1` en local. Todo exige `Authorization: Bearer <jwt>`
+salvo `POST /login`. El estado viaja como **número** (`"status": 2`). Fechas `LocalDateTime` **sin zona**
+(`2026-11-12T10:30:00`, hora de Argentina). Los errores devuelven `{ message, code, devInfo }`.
+Fuente completa: `CLAUDE.md` del backend, sección 7, y `/v3/api-docs`.
+
+| Uso | Método y ruta | Cuerpo / respuesta |
+|---|---|---|
+| Login | `POST /login` (formulario `username`, `password`) | 200 JWT **en texto plano**; 401 con JSON |
+| Listado | `GET /orders?page=&size=` | `{ content: Order[], page: { size, number, totalElements, totalPages } }`, más reciente primero, `size` máx. 100 |
+| Orden | `GET /orders/{orderNumber}` | `Order` (**sin** `activationPassword`) |
+| Historial de estados | `GET /orders/{orderNumber}/status-log` | filas con estado anterior y nuevo, fecha, actor, observaciones |
+| Lecturas | `GET /orders/{orderNumber}/details?page=&size=` | `{ content, page }`, por `id` ascendente |
+| Conciliación | `GET /orders/{orderNumber}/reconciliation` | solo estado 4 (409 si no): `orderNumber, tare, finalWeight, loadedProduct, scaleNet, difference, averageTemperature, averageDensity, averageFlowRate` |
+| Punto 1 (SAP) | `POST /integration/sap/orders` | cuerpo en la sección 7 del `CLAUDE.md` del backend; 201 + `location`; **302 si el número ya existe** |
+| Punto 2 (TMS) | `POST /integration/tms/orders/{n}/tare` | `{ weight }` → `{ activationPassword }` |
+| Punto 3 (carga) | `POST /integration/loader/activation` | `{ orderNumber, password }` → `{ preset }` (403 si la clave es incorrecta) |
+| Punto 3 (lecturas) | `POST /integration/loader/orders/{n}/details` | `{ accumulatedMass, density, temperature, flowRate }` → siempre 200 `{ saved, reason }` |
+| Punto 4 (cierre) | `POST /integration/loader/orders/{n}/close` | sin cuerpo → la orden con `status: 3` |
+| Punto 5 (TMS) | `POST /integration/tms/orders/{n}/final-weight` | `{ weight }` → conciliación |
+
+Campos de `Order` que usa la UI: `orderNumber`, `status`, `truck { plate, tanks[{ number, capacityLiters }] }`,
+`driver { name, lastName, document }`, `customer { companyName, contact }`, `product { name, description }`,
+`plannedLoadDateTime`, `preset`, `receptionDateTime`, `tare`, `initialWeighingDateTime`, `activationDateTime`,
+`loadingStartDateTime`, `loadingEndDateTime`, `lastAccumulatedMass`, `lastDensity`, `lastTemperature`,
+`lastFlowRate`, `finalWeight`, `finalWeighingDateTime`. Se identifica por **`orderNumber`**, no por `id`.
+
+Se agregan en las Fases 1 a 3 (el contrato final queda en `docs/contrato-api.md` al cerrar la Fase 3):
+roles por endpoint (403), alarmas (`/alarms`, `/alarms/{id}/acknowledge`, `/alarms/config`) y filtros/orden del listado.
+
+## 6. Convenciones del frontend
+
+- **Estructura por feature** (`src/features/<feature>/{components,hooks,services}`), páginas finas en `src/app`,
+  componentes de UI genéricos en `src/components/ui`, tipos en `src/types`, utilidades en `src/lib`.
+- **Tipos que reflejan el JSON real** (nombres en inglés iguales al backend). Un único cliente HTTP
+  (`src/services/api/client.ts`) agrega el token, interpreta `{ message }` y lanza `ApiError(status, message)`.
+- **Tiempo real = polling** con `setInterval` (el backend no tiene WebSockets ni SSE; la cátedra tampoco los
+  enseña). Se pausa con la pestaña oculta y se limpia al desmontar.
+- **Sesión:** JWT en `localStorage`; las rutas se protegen en el cliente (guard en el layout); `401` cierra la sesión
+  y vuelve al login; `403` muestra "sin permisos" sin cerrar la sesión.
+- **TypeScript estricto, sin `any`**; el lint no debe tener advertencias nuevas. Textos de UI en español.
+- **Pruebas:** `npm test` corre con el runner de Node (`node --experimental-strip-types`); ampliar la lista de
+  archivos de prueba al agregar módulos con lógica (cálculos, adaptadores, formateadores).
+- **Zona horaria:** el backend envía hora de Argentina sin offset. Los cálculos de tiempo transcurrido deben
+  interpretar esas fechas como hora local de Argentina, no depender de la zona del navegador.
+
+## 7. Decisiones de diseño (a confirmar o ajustar en cada fase)
+
+| # | Decisión | Fase |
+|---|---|---|
+| D-1 | **Backend primero, frontend después:** el frontend se conecta una sola vez al contrato final (evita repetir el error de construir contra una API que cambia). | 1–3 antes de 4–9 |
+| D-2 | Matriz de roles del plan (sección 4.1): **aprobada el 12/11/2026**. | 1 |
+| D-3 | (**Aprobada 12/11/2026**) Alarma **por orden**: mientras exista una alarma pendiente de esa orden no se crea ni se envía otra; al aceptarla, una nueva superación vuelve a alarmar. Umbral y destinatarios **globales**. | 2 |
+| D-4 | Un fallo del correo **nunca** hace fallar la lectura del caudalímetro (se registra y la lectura se guarda). El envío es asíncrono y posterior al commit. | 2 |
+| D-5 | El usuario que acepta la alarma sale del **token**, no del cuerpo de la petición. | 2 |
+| D-6 | El PIN de activación **no** se muestra en el detalle de la orden (el backend no lo publica): solo aparece en el simulador, en la respuesta de la tara. | 6, 9 |
+| D-7 | Se elimina el mock (`src/services/mock/mockStore.ts`) y todo `catch` que caiga a datos falsos; se borra el archivo cuando nadie lo importe. | 4–9 |
+| D-8 | Tiempo real por polling (2–5 s según pantalla). Sin WebSockets. | 6 |
+| D-9 | Documentación por fase más liviana que la del backend: informe breve + guía de defensa (≥ 8 preguntas). | todas |
+| D-10 | **H-5 entra en el final:** clave JWT y CORS por variables de entorno, con el valor actual como respaldo. Aprobado 12/11/2026. | 3 |
+| D-11 | **Next.js actualizado a 16.4.6** (12/11/2026) por avisos de seguridad de 16.4.0. No usar Server Actions ni `use cache` sin revisar los avisos vigentes. | 0 |
+| D-12 | **Cuenta SMTP:** se configura cuando el correo esté hecho y se pruebe (Fase 2, T9); hasta entonces, solo pruebas con el envío simulado. | 2 |
+| D-14 | **CORS (H-30):** el preflight `OPTIONS` del backend responde 401 hoy; se corrige en la Fase 3 (`http.cors()`). Hasta entonces el navegador no puede llamar a la API desde otro origen: para probar el frontend antes de la Fase 3 se usa un *rewrite* de Next hacia `localhost:8080` o se adelanta esa corrección. El frontend nunca muestra `devInfo`, solo `message`. | 3, 4 |
+| D-13 | **Ritmo:** por ahora avanza solo Martín González, sin fecha de final fijada; el reparto entre el equipo se decide más adelante. | todas |
+
+## 8. Entorno local
+
+```bash
+# Backend (repo hermano): base MySQL y aplicación, perfil de desarrollo
+cd ../iw3-gas-terminal-backend && docker compose up -d
+./mvnw spring-boot:run -Dspring-boot.run.profiles=mysqldev      # http://localhost:8080
+# Usuarios de prueba: docs/sql/seed-dev-users.sql (admin / admin123, solo desarrollo)
+
+# Frontend (este repo)
+npm ci
+echo NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1 > .env.local
+npm run dev            # http://localhost:3000
+npm run lint && npm test && npm run build
+```
+
+Producción: la VM (`jc755.duckdns.org`) corre 4 contenedores (`iw3-app`, `iw3-frontend`, `iw3-mysql-prod`, `nginx`) y
+se actualiza con GitHub Actions al hacer push a `main`. Docker local se apaga cuando no se usa.
+
+## 9. Qué NO hacer
+
+- No hacer commit, push, merge, ni tocar la VM, sin que el usuario lo pida.
+- No modificar la carpeta de la cátedra ni el `main` del backend fuera de un PR aprobado.
+- No reintroducir mocks, tokens falsos, usuarios por defecto ni `catch` silenciosos.
+- No inventar endpoints o campos: si el contrato no lo tiene, se registra y se pide autorización.
+- No avanzar de fase sin autorización explícita.
