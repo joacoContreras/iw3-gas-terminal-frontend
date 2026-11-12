@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/features/auth/context/AuthContext";
+import type { Permission } from "@/features/auth/lib/permissions";
 import {
   LayoutDashboard,
   Layers,
@@ -11,35 +13,18 @@ import {
   Sliders,
 } from "lucide-react";
 
+/** Cada módulo exige un permiso: el menú solo muestra lo que el rol puede usar. */
+const NAV_ITEMS: { label: string; href: string; icon: typeof Layers; exact: boolean; permission: Permission }[] = [
+  { label: "Dashboard General", href: "/", icon: LayoutDashboard, exact: true, permission: "orders:view" },
+  { label: "Órdenes de Carga", href: "/orders", icon: Layers, exact: false, permission: "orders:view" },
+  { label: "Alarmas de Temperatura", href: "/alarms", icon: ShieldAlert, exact: false, permission: "alarms:view" },
+  { label: "Simulador de Integración", href: "/simulator", icon: Sliders, exact: false, permission: "simulator:use" },
+];
+
 export function Sidebar() {
   const pathname = usePathname();
-
-  const navItems = [
-    {
-      label: "Dashboard General",
-      href: "/",
-      icon: LayoutDashboard,
-      exact: true,
-    },
-    {
-      label: "Órdenes de Carga",
-      href: "/orders",
-      icon: Layers,
-      exact: false,
-    },
-    {
-      label: "Alarmas de Temperatura",
-      href: "/alarms",
-      icon: ShieldAlert,
-      exact: false,
-    },
-    {
-      label: "Simulador de Integración",
-      href: "/simulator",
-      icon: Sliders,
-      exact: false,
-    },
-  ];
+  const { can } = useAuth();
+  const navItems = NAV_ITEMS.filter((item) => can(item.permission));
 
   return (
     <aside className="w-64 shrink-0 hidden md:block border-r border-zinc-200/80 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/30">
