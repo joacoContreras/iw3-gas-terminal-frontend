@@ -6,6 +6,7 @@ import { useOrders } from "@/features/orders/hooks/useOrders";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { OrderTable } from "@/features/orders/components/order-table";
+import { RequirePermission } from "@/components/shared/permission-gate";
 import { StateBadge } from "@/components/shared/state-badge";
 import { calculateEta } from "@/lib/calculations";
 import { formatKg, formatTemperature, formatFlowRate } from "@/lib/formatters";
@@ -19,7 +20,7 @@ import {
   Scale,
 } from "lucide-react";
 
-export default function DashboardOverviewPage() {
+function DashboardOverview() {
   const { orders } = useOrders(3000);
 
   const countState1 = orders.filter((o) => o.state === 1).length;
@@ -242,5 +243,14 @@ export default function DashboardOverviewPage() {
         <OrderTable orders={orders} />
       </div>
     </div>
+  );
+}
+
+export default function DashboardOverviewPage() {
+  // El panel consulta las órdenes: se monta solo si el rol puede verlas (si no, no dispara pedidos que darían 403).
+  return (
+    <RequirePermission permission="orders:view">
+      <DashboardOverview />
+    </RequirePermission>
   );
 }
