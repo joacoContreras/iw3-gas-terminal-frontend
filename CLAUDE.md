@@ -32,7 +32,7 @@ El informe de cada fase de backend vive en `docs/` del backend; aquí solo se re
 
 ## 2. Dónde estamos hoy
 
-**Última actualización:** 12/11/2026 — Fases 0, 1 y 2 hechas. Las del backend están **integradas en `main` del backend y desplegadas** (PR #18). Falta mergear `fase-0-lockfile-ci` (arregla el CI de `main`) y empezar la Fase 3.
+**Última actualización:** 12/11/2026 — **Backend completo** (Fases 1 a 3 integradas en `main` del backend y desplegadas) y Fase 0 del frontend integrada. La **Fase 4** (conexión real) está implementada, probada y **pusheada** (rama `fase-4-conexion`, sin PR).
 
 **Estado del repositorio del backend (12/11/2026, resuelto):** el PR #16 del backend (05/11) había pisado el cierre del segundo parcial. El PR #18 (desde `merge/final-fase-2-alarmas`, 29 commits, sin conflictos) lo restituyó y sumó
 las Fases 1 y 2: `main` del backend quedó en un árbol idéntico al probado y el deploy terminó en verde (la VM publica las 16 rutas, incluidas las 4 de alarmas). **Lección:** las ramas parten de `origin/main` actualizado; las ramas con
@@ -45,7 +45,7 @@ otra historia dan conflictos (el PR #17, desde la rama original, tenía 162 comm
 | 1 | Roles (backend) | backend | **Completada e integrada en `main` del backend (12/11/2026, PR #18)** y desplegada. 138 tests y Postman 186 pedidos / 428 aserciones sin fallas al cerrarla; informe y PDF en `docs/` del backend |
 | 2 | Alarma de temperatura por e-mail (backend) | backend | **Completada e integrada en `main` del backend (12/11/2026, PR #18)** y desplegada: 215 tests, Postman 219 pedidos / 483 aserciones y escenario real con SMTP de mentira (42 verificaciones) sin fallas. **Falta probar con una cuenta SMTP real** (D-12); informe y PDF en `docs/` del backend |
 | 3 | Ajustes de contrato para el frontend y cierre del backend | backend | Pendiente |
-| 4 | Conexión real: cliente HTTP, tipos y errores | frontend | Pendiente |
+| 4 | Conexión real: cliente HTTP, tipos y errores | frontend | **Implementada, probada y pusheada (12/11/2026, rama `fase-4-conexion`, sin PR)**: 83 tests (también con Node 22), lint y build en verde, tipos contrastados con el JSON del backend vivo y **33 verificaciones con Chrome real**. Informe: `docs/fase-4-conexion.md` |
 | 5 | Autenticación, sesión, rutas protegidas y roles en la UI | frontend | Pendiente |
 | 6 | Órdenes: listado, filtros, monitoreo, detalle, ETA y tiempo transcurrido | frontend | Pendiente |
 | 7 | Conciliación | frontend | Pendiente |
@@ -128,17 +128,17 @@ Estados de la orden: 1 Pendiente de pesaje inicial · 2 Con pesaje inicial regis
 Base: `{NEXT_PUBLIC_API_URL}` = `http://localhost:8080/api/v1` en local. Todo exige `Authorization: Bearer <jwt>`
 salvo `POST /login`. El estado viaja como **número** (`"status": 2`). Fechas `LocalDateTime` **sin zona**
 (`2026-11-12T10:30:00`, hora de Argentina). Los errores devuelven `{ message, code, devInfo }`.
-Fuente completa: `CLAUDE.md` del backend, sección 7, y `/v3/api-docs`.
+Fuente completa y ejemplos reales: **`docs/contrato-api.md`** (copia del contrato congelado del backend, generado desde su `/v3/api-docs`). Los tipos están en `src/types/api`.
 
 | Uso | Método y ruta | Cuerpo / respuesta |
 |---|---|---|
-| Login | `POST /login` (formulario `username`, `password`) | 200 JWT **en texto plano**; 401 con JSON |
-| Listado | `GET /orders?page=&size=` | `{ content: Order[], page: { size, number, totalElements, totalPages } }`, más reciente primero, `size` máx. 100 |
+| Login | `POST /login` (formulario `username`, `password`) | 200 JWT **como texto** (con `Accept: application/json` el `Content-Type` dice json pero el cuerpo es el token pelado: el cliente lo tolera); 401 con JSON |
+| Listado | `GET /orders?status=&sort=&page=&size=` | `{ content: Order[], page: { size, number, totalElements, totalPages } }`; `status` 1 a 4; `sort=campo,dirección` por `orderNumber`, `plannedLoadDateTime`, `receptionDateTime`, `status` o `preset` (otro campo → 400); sin `sort`, la más reciente primero; `size` máx. 100 |
 | Orden | `GET /orders/{orderNumber}` | `Order` (**sin** `activationPassword`) |
 | Historial de estados | `GET /orders/{orderNumber}/status-log` | filas con estado anterior y nuevo, fecha, actor, observaciones |
 | Lecturas | `GET /orders/{orderNumber}/details?page=&size=` | `{ content, page }`, por `id` ascendente |
 | Conciliación | `GET /orders/{orderNumber}/reconciliation` | solo estado 4 (409 si no): `orderNumber, tare, finalWeight, loadedProduct, scaleNet, difference, averageTemperature, averageDensity, averageFlowRate` |
-| Punto 1 (SAP) | `POST /integration/sap/orders` | cuerpo en la sección 7 del `CLAUDE.md` del backend; 201 + `location`; **302 si el número ya existe** |
+| Punto 1 (SAP) | `POST /integration/sap/orders` | cuerpo en la sección 5 del contrato; 201 sin cuerpo + header `Location`; **302 si el número ya existe** (llega al navegador como estado 302 con el `message` del backend, sin seguir ninguna redirección) |
 | Punto 2 (TMS) | `POST /integration/tms/orders/{n}/tare` | `{ weight }` → `{ activationPassword }` |
 | Punto 3 (carga) | `POST /integration/loader/activation` | `{ orderNumber, password }` → `{ preset }` (403 si la clave es incorrecta) |
 | Punto 3 (lecturas) | `POST /integration/loader/orders/{n}/details` | `{ accumulatedMass, density, temperature, flowRate }` → siempre 200 `{ saved, reason }` |
@@ -151,8 +151,7 @@ Campos de `Order` que usa la UI: `orderNumber`, `status`, `truck { plate, tanks[
 `loadingStartDateTime`, `loadingEndDateTime`, `lastAccumulatedMass`, `lastDensity`, `lastTemperature`,
 `lastFlowRate`, `finalWeight`, `finalWeighingDateTime`. Se identifica por **`orderNumber`**, no por `id`.
 
-Se agregan en las Fases 1 a 3 (el contrato final queda en `docs/contrato-api.md` al cerrar la Fase 3):
-roles por endpoint (403), alarmas (`/alarms`, `/alarms/{id}/acknowledge`, `/alarms/config`) y filtros/orden del listado.
+Roles por endpoint (403), alarmas (`/alarms`, `/alarms/{id}/acknowledge`, `/alarms/config`) y filtros y orden del listado **ya están en el contrato** (Fases 1 a 3 del backend).
 
 ## 6. Convenciones del frontend
 
@@ -166,8 +165,8 @@ roles por endpoint (403), alarmas (`/alarms`, `/alarms/{id}/acknowledge`, `/alar
   y vuelve al login; `403` muestra "sin permisos" sin cerrar la sesión.
 - **Dependencias:** el CI corre `npm ci` con Node 22 (npm 10). Después de cualquier cambio en `package.json` o en el lock, validar con `npx -y npm@10 ci --dry-run` (y mejor una copia limpia con `npm ci`, lint, `npm test` y `npm run build`); el lock generado con otro npm puede no pasar.
 - **TypeScript estricto, sin `any`**; el lint no debe tener advertencias nuevas. Textos de UI en español.
-- **Pruebas:** `npm test` corre con el runner de Node (`node --experimental-strip-types`); ampliar la lista de
-  archivos de prueba al agregar módulos con lógica (cálculos, adaptadores, formateadores).
+- **Cliente HTTP único:** `src/services/api/client.ts` (`apiClient` devuelve los datos; `apiRequest` suma estado y cabeceras). Todo error es `ApiError(status, message)` con el `message` real; `status 0` = sin respuesta. Los tipos del contrato son `@/types/api` (los de `@/types/*` son *legacy* y se borran con el mock). Las fechas del backend se leen solo con `@/lib/dates` (`parseBackendDate` las interpreta como hora de Argentina) y los parámetros de `GET /orders` y `/alarms` se arman con `@/lib/api-query`. La URL de la API se lee como `process.env.NEXT_PUBLIC_API_URL` **literal** (Next solo incrusta ese acceso estático) y se fija al compilar.
+- **Pruebas:** `npm test` corre todos los `*.test.mjs` con el ejecutor de Node (`node --experimental-strip-types --test "src/**/*.test.mjs"`; se probó con Node 22, el del CI). Un módulo con lógica debe poder importarse desde la prueba: sin imports relativos en tiempo de ejecución (solo `import type`) y sin sintaxis que Node no borre (enums, propiedades de parámetro del constructor).
 - **Zona horaria:** el backend envía hora de Argentina sin offset. Los cálculos de tiempo transcurrido deben
   interpretar esas fechas como hora local de Argentina, no depender de la zona del navegador.
 
@@ -187,8 +186,10 @@ roles por endpoint (403), alarmas (`/alarms`, `/alarms/{id}/acknowledge`, `/alar
 | D-10 | **H-5 entra en el final:** clave JWT y CORS por variables de entorno, con el valor actual como respaldo. Aprobado 12/11/2026. | 3 |
 | D-11 | **Next.js actualizado a 16.4.6** (12/11/2026) por avisos de seguridad de 16.4.0. No usar Server Actions ni `use cache` sin revisar los avisos vigentes. | 0 |
 | D-12 | **Cuenta SMTP:** se configura cuando el correo esté hecho y se pruebe (Fase 2, T9); hasta entonces, solo pruebas con el envío simulado. | 2 |
-| D-14 | **CORS (H-30):** el preflight `OPTIONS` del backend responde 401 hoy; se corrige en la Fase 3 (`http.cors()`). Hasta entonces el navegador no puede llamar a la API desde otro origen: para probar el frontend antes de la Fase 3 se usa un *rewrite* de Next hacia `localhost:8080` o se adelanta esa corrección. El frontend nunca muestra `devInfo`, solo `message`. | 3, 4 |
+| D-14 | **CORS (H-30): RESUELTO el 12/11/2026 en la Fase 3 del backend** (verificado en la VM y con Chrome real). Texto original: el preflight `OPTIONS` del backend respondía 401; se corrige en la Fase 3 (`http.cors()`). Hasta entonces el navegador no puede llamar a la API desde otro origen: para probar el frontend antes de la Fase 3 se usa un *rewrite* de Next hacia `localhost:8080` o se adelanta esa corrección. El frontend nunca muestra `devInfo`, solo `message`. | 3, 4 |
 | D-13 | **Ritmo:** por ahora avanza solo Martín González, sin fecha de final fijada; el reparto entre el equipo se decide más adelante. | todas |
+| D-15 | Los tipos del contrato real viven en un módulo nuevo, `@/types/api`; los de `@/types/*` (escritos contra una API imaginada) quedan marcados *legacy* hasta que cada pantalla se migre (Fases 5 a 9). Así el build sigue en verde en cada fase. | 4 a 9 |
+| D-16 | `src/types/api/contract-examples.ts` guarda ejemplos **reales** del backend anotados con los tipos: si un tipo se desvía del JSON, `next build` falla. Al cambiar el contrato se actualiza ese archivo. | 4 |
 
 ## 8. Entorno local
 

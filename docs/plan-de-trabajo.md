@@ -168,6 +168,8 @@ la lectura nunca falla por el correo; sin duplicados bajo concurrencia; el circu
 
 ### 4.4 Fase 4 — Conexión real: cliente HTTP, tipos y errores
 
+> **Estado (12/11/2026): implementada, probada y pusheada** (rama `fase-4-conexion`, sin PR). T1 a T6 hechas. 83 tests (también con Node 22), lint y build en verde, tipos contrastados con el JSON del backend vivo y 33 verificaciones con Chrome real. La prueba con Chrome encontró un defecto que los tests no veían (el login real viene como `application/json` con el token pelado) y que explica por qué el login de la UI vieja siempre caía al mock. Informe: `docs/fase-4-conexion.md`.
+
 | Tarea | Detalle |
 |---|---|
 | T1 | `NEXT_PUBLIC_API_URL` sin respaldo silencioso; `.env.example` documentado (el `.env.local` no se sube) |
