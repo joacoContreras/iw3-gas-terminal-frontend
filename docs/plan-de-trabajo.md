@@ -184,6 +184,8 @@ distingue y comunica cada código; lint, test y build pasan. Los `*Api.ts` de ca
 
 ### 4.5 Fase 5 — Autenticación, sesión, rutas protegidas y roles en la UI
 
+> **Estado (12/11/2026): implementada y probada** (rama `fase-5-autenticacion`, sin commitear). T1 a T7 hechas. 116 tests (33 nuevos), 5 mutaciones detectadas, lint y build en verde y 95 verificaciones con Chrome real contra el backend (login, vencimiento, 401 y los 6 roles). Las pantallas de órdenes y alarmas siguen siendo las heredadas (listas vacías con el backend real) hasta las Fases 6 y 8. Informe: `docs/fase-5-autenticacion.md`.
+
 | Tarea | Detalle |
 |---|---|
 | T1 | `authApi`: solo login real (`POST /login`); eliminar el JWT falso y el modo demo; mostrar el mensaje 401 del backend |
