@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useOrders } from "@/features/orders/hooks/useOrders";
+import { useLegacyOrders } from "@/features/simulator/hooks/useLegacyOrders";
 import { SapOrderGenerator } from "@/features/simulator/components/sap-order-generator";
 import { TmsScaleControl } from "@/features/simulator/components/tms-scale-control";
 import { PumpStreamer } from "@/features/simulator/components/pump-streamer";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, Info } from "lucide-react";
 
 export default function IntegrationSimulatorPage() {
-  const { orders, refetch } = useOrders(2500);
+  const { orders, refetch } = useLegacyOrders(2500);
 
   return (
     <div className="space-y-8">
