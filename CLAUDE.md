@@ -19,14 +19,26 @@
 - **Idioma:** documentación, comentarios y textos de la UI en español; identificadores (código, JSON, rutas) en inglés.
 - **Fecha del final:** a confirmar con la cátedra.
 
+### Dónde va cada cosa (dos repositorios separados, aclarado el 12/11/2026)
+
+Los dos repos se comunican **solo por HTTP** (la API, el token y `NEXT_PUBLIC_API_URL`); ninguno compila ni importa código del otro.
+
+| Qué cambia | Repo | Ramas |
+|---|---|---|
+| Frontend, este `CLAUDE.md`, el plan de trabajo y los informes de las fases 0 y 4 a 10 | `iw3-gas-terminal-frontend` | `fase-N-<tema>` |
+| Lo que faltaba del backend para el final: Fase 1 (roles), Fase 2 (alarmas por mail) y Fase 3 (filtros, CORS, H-5 y cierre) | `iw3-gas-terminal-backend` | `final-fase-N-<tema>` |
+
+El informe de cada fase de backend vive en `docs/` del backend; aquí solo se registra su estado. Ante la duda sobre a qué repo va un cambio, **preguntar antes de commitear o pushear**.
+
 ## 2. Dónde estamos hoy
 
 **Última actualización:** 12/11/2026 — Fases 0 y 1 hechas; la Fase 1 está pusheada como rama (sin Pull Request: falta resolver el `origin/main` del backend).
 
-**Aviso del repositorio del backend (12/11/2026):** `origin/main` del backend fue reescrito con un push forzado (567 commits, 120 con
-`Co-Authored-By: Claude`, sin el contenido del cierre del parcial: `/demo` cerrado, Swagger completo, chequeo del deploy). El `main` local
-(317 commits, 0 trailers) es la versión entregada y es la base de las ramas del final. **No hacer `pull`, `push` ni `reset` en el backend** hasta que
-el usuario decida cuál historia es la correcta. Si la VM se redesplegó desde `origin/main` después del 05/11, podría estar corriendo la versión anterior al cierre.
+**Aviso del repositorio del backend (12/11/2026):** el PR #16 del backend («Fase 5 conciliación») se mergeó el 05/11 desde una rama con la historia anterior a la
+limpieza. `origin/main` del backend quedó en `0fa3f1c` (567 commits, 120 con `Co-Authored-By: Claude`) **sin** el cierre del parcial (`/demo` cerrado, Swagger completo, Postman 07,
+chequeo del deploy), y el deploy corrió en verde sobre ese commit: **la VM pudo quedar con esa versión**. El `main` local del backend (317 commits) es la versión entregada y es la base de
+las ramas del final. Reparación no destructiva preparada y pusheada: rama `restaurar-cierre-parcial` del backend (un commit sobre `origin/main`, árbol idéntico al entregado), **pendiente de PR y de
+la decisión del usuario**. Hasta entonces: no hacer `pull`, `push --force` ni `reset` en el backend.
 
 | Fase | Contenido | Repo | Estado |
 |---|---|---|---|
