@@ -3,64 +3,91 @@
 import * as React from "react";
 import Link from "next/link";
 import { useOrders } from "@/features/orders/hooks/useOrders";
-import { OrderFilters } from "@/features/orders/components/order-filters";
+import { OrderFilters, type SortValue } from "@/features/orders/components/order-filters";
 import { OrderTable } from "@/features/orders/components/order-table";
+import { Pagination } from "@/components/shared/pagination";
+import { ForbiddenView } from "@/components/shared/forbidden-view";
+import { PermissionGate } from "@/components/shared/permission-gate";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, PlusCircle } from "lucide-react";
+import { DEFAULT_PAGE_SIZE } from "@/lib/api-query";
+import { ORDER_SORT_FIELDS, type OrderSortField, type OrderStatusCode, type SortDirection } from "@/types/api";
+import { RefreshCw, PlusCircle, AlertTriangle } from "lucide-react";
+
+function parseSort(value: SortValue): { field: OrderSortField; direction: SortDirection } | undefined {
+  if (!value) return undefined;
+  const [field, direction] = value.split(",") as [OrderSortField, SortDirection];
+  return ORDER_SORT_FIELDS.includes(field) ? { field, direction } : undefined;
+}
 
 export default function OrdersListPage() {
-  const {
-    orders,
-    isLoading,
-    filterState,
-    setFilterState,
-    searchQuery,
-    setSearchQuery,
-    refetch,
-  } = useOrders(4000);
+  const [status, setStatus] = React.useState<OrderStatusCode | undefined>(undefined);
+  const [sort, setSort] = React.useState<SortValue>("");
+  const [page, setPage] = React.useState(0);
+
+  const { orders, pageInfo, isLoading, error, errorStatus, refetch, data } = useOrders({
+    status,
+    sort: parseSort(sort),
+    page,
+    size: DEFAULT_PAGE_SIZE,
+  });
+
+  // Cambiar el filtro o el orden vuelve a la primera página.
+  const changeStatus = (next: OrderStatusCode | undefined) => {
+    setStatus(next);
+    setPage(0);
+  };
+  const changeSort = (next: SortValue) => {
+    setSort(next);
+    setPage(0);
+  };
+
+  if (errorStatus === 403) return <ForbiddenView message={error ?? undefined} />;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-zinc-200/80 dark:border-zinc-800">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">
-            Administración de Órdenes de Carga
-          </h1>
+          <h1 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">Administración de Órdenes de Carga</h1>
           <p className="text-xs text-zinc-500 mt-1">
-            Control de órdenes en sus 4 estados: Pendiente de tara, En carga, Cerrada y Finalizada.
+            Estados: 1 Pendiente de pesaje inicial · 2 Con pesaje inicial (en carga) · 3 Cerrada para carga · 4 Finalizada. Se actualiza solo.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refetch}
-            isLoading={isLoading}
-            className="gap-1.5"
-          >
+          <Button variant="outline" size="sm" onClick={refetch} isLoading={isLoading} className="gap-1.5">
             <RefreshCw className="h-4 w-4 text-zinc-500" />
             Actualizar
           </Button>
-          <Link href="/simulator">
-            <Button variant="primary" size="sm" className="gap-1.5">
-              <PlusCircle className="h-4 w-4" />
-              Nueva Orden (SAP)
-            </Button>
-          </Link>
+          <PermissionGate permission="simulator:use">
+            <Link href="/simulator">
+              <Button variant="primary" size="sm" className="gap-1.5">
+                <PlusCircle className="h-4 w-4" />
+                Nueva Orden (SAP)
+              </Button>
+            </Link>
+          </PermissionGate>
         </div>
       </div>
 
-      {/* Filters & Search */}
-      <OrderFilters
-        filterState={filterState}
-        setFilterState={setFilterState}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-      />
+      <OrderFilters status={status} onStatusChange={changeStatus} sort={sort} onSortChange={changeSort} />
 
-      {/* Orders Table */}
-      <OrderTable orders={orders} />
+      {error && (
+        <div role="alert" className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          {error}
+          {data && <span className="text-rose-500/80"> (se muestra la última información recibida)</span>}
+        </div>
+      )}
+
+      {isLoading && !data ? (
+        <div role="status" className="flex items-center justify-center gap-2 p-16 text-sm text-zinc-500">
+          <RefreshCw className="h-4 w-4 animate-spin" /> Cargando órdenes…
+        </div>
+      ) : (
+        <>
+          <OrderTable orders={orders} emptyMessage={status ? "No hay órdenes en ese estado." : "Todavía no hay órdenes registradas."} />
+          <Pagination info={pageInfo} shown={orders.length} onPageChange={setPage} />
+        </>
+      )}
     </div>
   );
 }

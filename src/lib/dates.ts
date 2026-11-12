@@ -76,3 +76,16 @@ export function formatDuration(millis: number | null): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${pad(Math.floor(total / 3600))}:${pad(Math.floor((total % 3600) / 60))}:${pad(total % 60)}`;
 }
+
+/**
+ * Tiempo transcurrido de la carga: desde `loadingStartDateTime` (primera lectura válida) hasta ahora, **solo con la orden en
+ * estado 2**. En los demás estados la carga no está en curso, así que devuelve `null` (no se muestra como «en vivo»).
+ */
+export function loadingElapsedMillis(
+  status: number,
+  loadingStartDateTime: string | null | undefined,
+  now: number | Date = Date.now(),
+): number | null {
+  if (status !== 2) return null;
+  return elapsedMillis(loadingStartDateTime, now);
+}

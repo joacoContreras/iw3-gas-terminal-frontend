@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { simulatorApi } from "../services/simulatorApi";
-import { ordersApi } from "@/features/orders/services/ordersApi";
+import { legacyOrdersApi } from "../services/legacyOrdersApi";
 import { formatKg, formatTemperature } from "@/lib/formatters";
 import { Play, Pause, Zap, Lock, Key, Flame } from "lucide-react";
 
@@ -99,7 +99,7 @@ export function PumpStreamer({ orders, onOrderUpdated }: PumpStreamerProps) {
     if (!selectedOrder) return;
     setIsAutoPumping(false);
     try {
-      await ordersApi.closeOrder(selectedOrder.id);
+      await legacyOrdersApi.closeOrder(selectedOrder.id);
       onOrderUpdated();
     } catch (err) {
       console.error(err);

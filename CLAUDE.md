@@ -32,7 +32,7 @@ El informe de cada fase de backend vive en `docs/` del backend; aquí solo se re
 
 ## 2. Dónde estamos hoy
 
-**Última actualización:** 12/11/2026 — **Backend completo** (Fases 1 a 3 integradas en `main` del backend y desplegadas) y Fase 0 del frontend integrada. La **Fase 4** (conexión real) está integrada en `main`. La **Fase 5** (autenticación y roles en la UI) está implementada y probada (rama `fase-5-autenticacion`, sin commitear).
+**Última actualización:** 12/11/2026 — **Backend completo** (Fases 1 a 3 integradas en `main` del backend y desplegadas) y Fase 0 del frontend integrada. La **Fase 4** (conexión real) está integrada en `main`. La **Fase 5** (autenticación y roles en la UI) está integrada en `main`. La **Fase 6** (órdenes) está implementada y probada (rama `fase-6-ordenes`, sin commitear).
 
 **Estado del repositorio del backend (12/11/2026, resuelto):** el PR #16 del backend (05/11) había pisado el cierre del segundo parcial. El PR #18 (desde `merge/final-fase-2-alarmas`, 29 commits, sin conflictos) lo restituyó y sumó
 las Fases 1 y 2: `main` del backend quedó en un árbol idéntico al probado y el deploy terminó en verde (la VM publica las 16 rutas, incluidas las 4 de alarmas). **Lección:** las ramas parten de `origin/main` actualizado; las ramas con
@@ -46,8 +46,8 @@ otra historia dan conflictos (el PR #17, desde la rama original, tenía 162 comm
 | 2 | Alarma de temperatura por e-mail (backend) | backend | **Completada e integrada en `main` del backend (12/11/2026, PR #18)** y desplegada: 215 tests, Postman 219 pedidos / 483 aserciones y escenario real con SMTP de mentira (42 verificaciones) sin fallas. **Falta probar con una cuenta SMTP real** (D-12); informe y PDF en `docs/` del backend |
 | 3 | Ajustes de contrato para el frontend y cierre del backend | backend | **Completada e integrada en `main` del backend y desplegada** (filtros y orden del listado, CORS, H-5 y contrato congelado); informe y PDF en `docs/` del backend |
 | 4 | Conexión real: cliente HTTP, tipos y errores | frontend | **Completada e integrada en `main` (12/11/2026, PR #4, desplegada)**: 83 tests (también con Node 22), lint y build en verde, tipos contrastados con el JSON del backend vivo y **33 verificaciones con Chrome real**. Informe: `docs/fase-4-conexion.md` |
-| 5 | Autenticación, sesión, rutas protegidas y roles en la UI | frontend | **Implementada y probada (12/11/2026, rama `fase-5-autenticacion`, sin commitear)**: 116 tests (33 nuevos; también con Node 22), 5 mutaciones detectadas, lint y build en verde y **95 verificaciones con Chrome real** contra el backend (login, vencimiento, 401, los 6 roles). Informe: `docs/fase-5-autenticacion.md` |
-| 6 | Órdenes: listado, filtros, monitoreo, detalle, ETA y tiempo transcurrido | frontend | Pendiente |
+| 5 | Autenticación, sesión, rutas protegidas y roles en la UI | frontend | **Completada e integrada en `main` (12/11/2026, PR #5, desplegada)**: 116 tests (33 nuevos; también con Node 22), 5 mutaciones detectadas, lint y build en verde y **95 verificaciones con Chrome real** contra el backend (login, vencimiento, 401, los 6 roles). Informe: `docs/fase-5-autenticacion.md` |
+| 6 | Órdenes: listado, filtros, monitoreo, detalle, ETA y tiempo transcurrido | frontend | **Implementada y probada (12/11/2026, rama `fase-6-ordenes`, sin commitear)**: 127 tests (también con Node 22), 5 mutaciones detectadas, lint y build en verde y **93 verificaciones con Chrome real** con órdenes creadas por la API de integración (ETA = cálculo manual, tiempo transcurrido solo en estado 2, actualización sola, cierre con confirmación). Informe: `docs/fase-6-ordenes.md` |
 | 7 | Conciliación | frontend | Pendiente |
 | 8 | Alarmas en la UI | frontend | Pendiente |
 | 9 | Simulador de integración real | frontend | Pendiente |
@@ -159,8 +159,7 @@ Roles por endpoint (403), alarmas (`/alarms`, `/alarms/{id}/acknowledge`, `/alar
   componentes de UI genéricos en `src/components/ui`, tipos en `src/types`, utilidades en `src/lib`.
 - **Tipos que reflejan el JSON real** (nombres en inglés iguales al backend). Un único cliente HTTP
   (`src/services/api/client.ts`) agrega el token, interpreta `{ message }` y lanza `ApiError(status, message)`.
-- **Tiempo real = polling** con `setInterval` (el backend no tiene WebSockets ni SSE; la cátedra tampoco los
-  enseña). Se pausa con la pestaña oculta y se limpia al desmontar.
+- **Tiempo real = polling** con `usePolling` (`src/lib/use-polling.ts`: `setTimeout` encadenado, sin pedidos superpuestos; el backend no tiene WebSockets ni SSE y la cátedra tampoco los enseña). Se pausa con la pestaña oculta, se cancela al desmontar y un fallo conserva el último dato con el aviso. Filtro, orden y paginación de los listados se piden **al servidor**.
 - **Sesión:** JWT en `localStorage` (solo el token; usuario, roles y `exp` se derivan de él en `features/auth/lib/session.ts`); las rutas se protegen en el cliente con `AuthGate` (reactivo, en el layout del dashboard); `401` y el vencimiento cierran la sesión y vuelven al login; `403` muestra "sin permisos" sin cerrar la sesión. Los permisos de la interfaz viven en `features/auth/lib/permissions.ts` (`can(...)`, `PermissionGate`, `RequirePermission`) y un test los compara con la matriz de `docs/contrato-api.md`: **ocultar no es seguridad, el backend decide**.
 - **Dependencias:** el CI corre `npm ci` con Node 22 (npm 10). Después de cualquier cambio en `package.json` o en el lock, validar con `npx -y npm@10 ci --dry-run` (y mejor una copia limpia con `npm ci`, lint, `npm test` y `npm run build`); el lock generado con otro npm puede no pasar.
 - **TypeScript estricto, sin `any`**; el lint no debe tener advertencias nuevas. Textos de UI en español.

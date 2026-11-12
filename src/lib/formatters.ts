@@ -1,52 +1,42 @@
-export function formatKg(val?: number): string {
-  if (val === undefined || val === null || isNaN(val)) return "0 kg";
-  return `${new Intl.NumberFormat("es-AR", {
-    maximumFractionDigits: 1,
-  }).format(val)} kg`;
+/**
+ * Formato de números para la interfaz (es-AR). Un dato que todavía no existe (`null` o `undefined`, por ejemplo la
+ * temperatura de una orden sin lecturas) se muestra como una raya, nunca como un cero que parezca una medición.
+ * Las fechas del backend se formatean con `@/lib/dates`.
+ */
+import { formatBackendDateTime } from "@/lib/dates";
+
+const PLACEHOLDER = "—";
+
+function isMissing(val: number | null | undefined): val is null | undefined {
+  return val === undefined || val === null || Number.isNaN(val);
 }
 
-export function formatTemperature(val?: number): string {
-  if (val === undefined || val === null || isNaN(val)) return "-- °C";
-  return `${new Intl.NumberFormat("es-AR", {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 2,
-  }).format(val)} °C`;
+function number(val: number, options: Intl.NumberFormatOptions): string {
+  return new Intl.NumberFormat("es-AR", options).format(val);
 }
 
-export function formatDensity(val?: number): string {
-  if (val === undefined || val === null || isNaN(val)) return "-- kg/m³";
-  return `${new Intl.NumberFormat("es-AR", {
-    minimumFractionDigits: 3,
-    maximumFractionDigits: 4,
-  }).format(val)} kg/m³`;
+export function formatKg(val?: number | null): string {
+  return isMissing(val) ? PLACEHOLDER : `${number(val, { maximumFractionDigits: 1 })} kg`;
 }
 
-export function formatFlowRate(val?: number): string {
-  if (val === undefined || val === null || isNaN(val)) return "0 kg/h";
-  return `${new Intl.NumberFormat("es-AR", {
-    maximumFractionDigits: 1,
-  }).format(val)} kg/h`;
+export function formatTemperature(val?: number | null): string {
+  return isMissing(val) ? PLACEHOLDER : `${number(val, { minimumFractionDigits: 1, maximumFractionDigits: 2 })} °C`;
 }
 
-export function formatDateTime(isoDate?: string): string {
-  if (!isoDate) return "--";
-  try {
-    const d = new Date(isoDate);
-    if (isNaN(d.getTime())) return isoDate;
-    return new Intl.DateTimeFormat("es-AR", {
-      dateStyle: "short",
-      timeStyle: "medium",
-    }).format(d);
-  } catch {
-    return isoDate;
-  }
+/** La densidad del contrato es un número entre 0 y 1 (sin unidad definida): se muestra sin unidad. */
+export function formatDensity(val?: number | null): string {
+  return isMissing(val) ? PLACEHOLDER : number(val, { minimumFractionDigits: 3, maximumFractionDigits: 4 });
 }
 
-export function formatDuration(minutes: number | null): string {
-  if (minutes === null) return "--";
-  if (minutes < 1) return "< 1 min";
-  if (minutes < 60) return `${minutes} min`;
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return `${h}h ${m}m`;
+export function formatFlowRate(val?: number | null): string {
+  return isMissing(val) ? PLACEHOLDER : `${number(val, { maximumFractionDigits: 1 })} kg/h`;
+}
+
+export function formatLiters(val?: number | null): string {
+  return isMissing(val) ? PLACEHOLDER : `${number(val, { maximumFractionDigits: 0 })} L`;
+}
+
+/** LEGACY: lo usan las pantallas de alarmas y conciliación hasta las Fases 8 y 7. Usar `formatBackendDateTime`. */
+export function formatDateTime(isoDate?: string | null): string {
+  return formatBackendDateTime(isoDate);
 }
