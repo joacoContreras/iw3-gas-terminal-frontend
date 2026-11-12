@@ -32,23 +32,18 @@ El informe de cada fase de backend vive en `docs/` del backend; aquí solo se re
 
 ## 2. Dónde estamos hoy
 
-**Última actualización:** 12/11/2026 — Fases 0 y 1 hechas; la Fase 1 está pusheada como rama (sin Pull Request: falta resolver el `origin/main` del backend).
+**Última actualización:** 12/11/2026 — Fases 0, 1 y 2 hechas. Las del backend están **integradas en `main` del backend y desplegadas** (PR #18). Falta mergear `fase-0-lockfile-ci` (arregla el CI de `main`) y empezar la Fase 3.
 
-**Aviso del repositorio del backend (12/11/2026):** el PR #16 del backend («Fase 5 conciliación») se mergeó el 05/11 desde una rama con la historia anterior a la
-limpieza. `origin/main` del backend quedó en `0fa3f1c` (567 commits, 120 con `Co-Authored-By: Claude`) **sin** el cierre del parcial (`/demo` cerrado, Swagger completo, Postman 07,
-chequeo del deploy), y el deploy corrió en verde sobre ese commit: **la VM pudo quedar con esa versión**. El `main` local del backend (317 commits) es la versión entregada y es la base de
-las ramas del final. Reparación no destructiva preparada y pusheada: rama `restaurar-cierre-parcial` del backend (un commit sobre `origin/main`, árbol idéntico al entregado), **pendiente de PR y de
-la decisión del usuario**. Hasta entonces: no hacer `pull`, `push --force` ni `reset` en el backend.
-
-**Orden de integración del backend (verificado el 12/11/2026 con `git merge-tree`):** las ramas `final-fase-1-roles` y `final-fase-2-alarmas` parten del `main` limpio y, mergeadas a `origin/main`,
-dan **conflictos en 7 a 10 archivos** (historias distintas, ancestro común del 23/10). Se publicaron versiones reaplicadas sobre `origin/main`, con **el mismo árbol** (verificado) y sin conflictos, que se pueden
-mergear incluso con fast-forward: 1) `restaurar-cierre-parcial` (1 commit), 2) `merge/final-fase-1-roles` (+8 commits), 3) `merge/final-fase-2-alarmas` (+20 commits). Cada merge a `main` **redespliega la VM**.
+**Estado del repositorio del backend (12/11/2026, resuelto):** el PR #16 del backend (05/11) había pisado el cierre del segundo parcial. El PR #18 (desde `merge/final-fase-2-alarmas`, 29 commits, sin conflictos) lo restituyó y sumó
+las Fases 1 y 2: `main` del backend quedó en un árbol idéntico al probado y el deploy terminó en verde (la VM publica las 16 rutas, incluidas las 4 de alarmas). **Lección:** las ramas parten de `origin/main` actualizado; las ramas con
+otra historia dan conflictos (el PR #17, desde la rama original, tenía 162 commits y 10 archivos en conflicto). **Pendiente de decisión:** `origin/main` del backend conserva 120 commits con `Co-Authored-By: Claude`
+(rama vieja del PR #16); quitarlos exige `push --force` y coordinar con el equipo. Cada merge a `main` de cualquiera de los dos repos **redespliega la VM** (salvo que el mensaje lleve `[skip ci]`).
 
 | Fase | Contenido | Repo | Estado |
 |---|---|---|---|
-| 0 | Línea base y puesta en marcha | ambos | **Completada** (Next 16.4.6; backend: 40 tests y 154 pedidos / 364 aserciones sin fallas) |
-| 1 | Roles (backend) | backend | **Implementada, probada y pusheada (12/11/2026)** a `origin/final-fase-1-roles` (7 commits, sin PR): 138 tests y Postman 186 pedidos / 428 aserciones sin fallas; informe en `docs/final-fase-1-roles.md` del backend. Falta el visto bueno del usuario |
-| 2 | Alarma de temperatura por e-mail (backend) | backend | **Implementada, probada y pusheada (12/11/2026)**, rama `final-fase-2-alarmas` del backend (20 commits, sin PR): 215 tests, Postman 219 pedidos / 483 aserciones y escenario real con SMTP de mentira, sin fallas; informe en `docs/final-fase-2-alarmas.md` del backend. **Falta probar con una cuenta SMTP real** (D-12) |
+| 0 | Línea base y puesta en marcha | ambos | **Completada** (Next 16.4.6; backend: 40 tests y 154 pedidos / 364 aserciones sin fallas). El PR #2 se mergeó, pero el CI de `main` quedó roto por el `package-lock.json`; el arreglo está en `fase-0-lockfile-ci`, **pendiente de merge** |
+| 1 | Roles (backend) | backend | **Completada e integrada en `main` del backend (12/11/2026, PR #18)** y desplegada. 138 tests y Postman 186 pedidos / 428 aserciones sin fallas al cerrarla; informe y PDF en `docs/` del backend |
+| 2 | Alarma de temperatura por e-mail (backend) | backend | **Completada e integrada en `main` del backend (12/11/2026, PR #18)** y desplegada: 215 tests, Postman 219 pedidos / 483 aserciones y escenario real con SMTP de mentira (42 verificaciones) sin fallas. **Falta probar con una cuenta SMTP real** (D-12); informe y PDF en `docs/` del backend |
 | 3 | Ajustes de contrato para el frontend y cierre del backend | backend | Pendiente |
 | 4 | Conexión real: cliente HTTP, tipos y errores | frontend | Pendiente |
 | 5 | Autenticación, sesión, rutas protegidas y roles en la UI | frontend | Pendiente |

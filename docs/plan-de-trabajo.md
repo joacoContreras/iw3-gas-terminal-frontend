@@ -77,7 +77,7 @@ el backend real → documentar → resumen → autorización para continuar.
 
 ### 4.1 Fase 1 — Roles (consigna final, punto 2)
 
-> **Estado (12/11/2026): implementada, probada y pusheada** (7 commits en `origin/final-fase-1-roles` del backend; sin Pull Request). T1 a T7 hechas: 138 tests (98 nuevos de la matriz), matriz real
+> **Estado (12/11/2026): completada e integrada en `main` del backend (PR #18) y desplegada.**
 > 72 de 72, Postman 186 pedidos y 428 aserciones sin fallas. Informe y guía de defensa: `docs/final-fase-1-roles.md` del backend. T4: se eligió un
 > `AccessDeniedHandler` propio (`RestAccessDeniedHandler`) porque el 403 sin handler sale vacío. Hallazgos: ver la sección 6 del informe y la nota sobre `origin/main` en `CLAUDE.md`.
 
@@ -120,7 +120,7 @@ con `admin` siguen con 0 fallas; `./mvnw -B test` pasa con los tests nuevos.
 
 ### 4.2 Fase 2 — Alarma de temperatura por e-mail (consigna final, punto 3)
 
-> **Estado (12/11/2026): implementada, probada y pusheada.** Rama `final-fase-2-alarmas` del backend (20 commits; para mergear usar `merge/final-fase-2-alarmas`, ver `CLAUDE.md`). T1 a T8 y T10 hechas; **T9 (correo con cuenta real) pendiente de las credenciales SMTP**.
+> **Estado (12/11/2026): completada e integrada en `main` del backend (PR #18) y desplegada** (la VM publica las 4 rutas de alarmas).
 > Resultados: 215 tests, Postman 219 pedidos y 483 aserciones, escenario real de 42 verificaciones (con un servidor SMTP de mentira), concurrencia de 40 lecturas con 1 alarma y 2 correos.
 > Dos defectos hallados probando y corregidos (remitente ausente y lista de destinatarios con valor por defecto). Contrato para el frontend: `Alarm { id, orderNumber, temperature, threshold, status, triggeredAt, emailSentAt, acknowledgedBy, acknowledgedAt, observation }` y `AlarmConfig { temperatureThreshold, recipientEmails }`.
 > Sin reintentos de envío: la UI debe mostrar «correo no enviado» cuando `emailSentAt` es nulo. Informe y guía de defensa en `docs/final-fase-2-alarmas.md` del backend.
