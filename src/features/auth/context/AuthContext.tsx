@@ -1,121 +1,159 @@
 "use client";
 
 import * as React from "react";
-import { User, UserRole, AuthState } from "@/types/auth";
-import { authApi, parseJwt } from "../services/authApi";
+import { TOKEN_STORAGE_KEY, UNAUTHORIZED_EVENT } from "@/services/api/client";
+import { authApi } from "../services/authApi";
+import { can as canDo, hasAnyRole, type Permission } from "../lib/permissions";
+import { msUntilExpiry, sessionFromToken, type Session } from "../lib/session";
 
-interface AuthContextType extends AuthState {
+/** Por qué terminó la sesión sin que el usuario lo pidiera (la pantalla de login lo explica). */
+export type SessionEndReason = "expired" | "unauthorized";
+
+export interface AuthUser {
+  username: string;
+  email: string | null;
+  /** Roles del token (`ROLE_ADMIN`, ...). */
+  roles: string[];
+}
+
+interface AuthContextType {
+  /** `null` si no hay sesión (o todavía se está restaurando: ver `isLoading`). */
+  user: AuthUser | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  /** `true` hasta que se leyó la sesión guardada en el navegador (evita mostrar el login un instante a quien ya entró). */
+  isLoading: boolean;
+  /** Motivo del último cierre automático de sesión; se limpia al volver a iniciar sesión. */
+  endReason: SessionEndReason | null;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
-  hasRole: (roles: UserRole | UserRole[]) => boolean;
+  /** ¿Tiene alguno de estos roles? (`ROLE_X` o `X`). */
+  hasRole: (roles: string | string[]) => boolean;
+  /** ¿Tiene este permiso de la interfaz? (ver `lib/permissions.ts`). */
+  can: (permission: Permission) => boolean;
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
-const TOKEN_KEY = "iw3_auth_token";
-const USER_KEY = "iw3_auth_user";
+/** `setTimeout` no admite más de 2^31-1 ms. */
+const MAX_TIMER_MS = 2_147_483_647;
+
+function readStoredToken(): string | null {
+  try {
+    return window.localStorage.getItem(TOKEN_STORAGE_KEY);
+  } catch {
+    return null; // almacenamiento bloqueado (modo privado, políticas del navegador)
+  }
+}
+
+function writeStoredToken(token: string | null): void {
+  try {
+    if (token === null) window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+    else window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  } catch {
+    // Sin almacenamiento la sesión dura lo que dure la pestaña; no es un error para el usuario.
+  }
+}
+
+/** Lee la sesión guardada. Un token ilegible o vencido se borra: nunca se restaura una sesión inválida. */
+function restoreSession(): { session: Session | null; hadToken: boolean } {
+  const stored = readStoredToken();
+  if (!stored) return { session: null, hadToken: false };
+  const session = sessionFromToken(stored, Date.now());
+  if (!session) writeStoredToken(null);
+  return { session, hadToken: true };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = React.useState<AuthState>({
-    user: null,
-    token: null,
-    isAuthenticated: false,
-    isLoading: true,
-  });
+  const [session, setSession] = React.useState<Session | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [endReason, setEndReason] = React.useState<SessionEndReason | null>(null);
 
-  const logout = React.useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    setState({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
+  const endSession = React.useCallback((reason: SessionEndReason | null) => {
+    writeStoredToken(null);
+    setSession(null);
+    setEndReason(reason);
   }, []);
 
+  const logout = React.useCallback(() => endSession(null), [endSession]);
+
+  // Restaura la sesión al montar. Sin token (o token inválido) NO se inventa un usuario: queda sin sesión.
   React.useEffect(() => {
-    // Restore session from localStorage on mount
-    const storedToken = localStorage.getItem(TOKEN_KEY);
-    const storedUser = localStorage.getItem(USER_KEY);
+    const { session: restored, hadToken } = restoreSession();
+    setSession(restored);
+    if (hadToken && !restored) setEndReason("expired");
+    setIsLoading(false);
+  }, []);
 
-    if (storedToken && storedUser) {
-      try {
-        const claims = parseJwt(storedToken);
-        // Check expiration
-        if (claims?.exp && claims.exp * 1000 < Date.now()) {
-          logout();
-        } else {
-          const user = JSON.parse(storedUser) as User;
-          setState({
-            user,
-            token: storedToken,
-            isAuthenticated: true,
-            isLoading: false,
-          });
+  // Cierra la sesión sola cuando vence el token (el servidor ya no lo aceptaría).
+  React.useEffect(() => {
+    if (!session) return;
+    const timer = window.setTimeout(
+      () => endSession("expired"),
+      Math.min(msUntilExpiry(session, Date.now()), MAX_TIMER_MS),
+    );
+    return () => window.clearTimeout(timer);
+  }, [session, endSession]);
+
+  React.useEffect(() => {
+    // 401 con token enviado (lo dispara el cliente HTTP): el servidor dice que la sesión ya no vale.
+    const onUnauthorized = () => endSession("unauthorized");
+
+    // Otra pestaña inició o cerró sesión: se sincroniza esta.
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== TOKEN_STORAGE_KEY && event.key !== null) return;
+      const { session: restored } = restoreSession();
+      setSession(restored);
+      if (restored) setEndReason(null);
+    };
+
+    // Los temporizadores se frenan con el equipo suspendido o la pestaña en segundo plano: al volver se revisa.
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      setSession((current) => {
+        if (current && msUntilExpiry(current, Date.now()) === 0) {
+          writeStoredToken(null);
+          setEndReason("expired");
+          return null;
         }
-      } catch {
-        logout();
-      }
-    } else {
-      // Create initial demo user if empty so developer can test instantly
-      const defaultUser: User = {
-        username: "admin_terminal",
-        email: "admin@gas-terminal.com",
-        roles: ["ROLE_ADMIN", "ROLE_SUPERVISOR", "ROLE_OPERADOR"],
-      };
-      const demoToken = "demo-jwt-token-terminal-admin";
-      localStorage.setItem(TOKEN_KEY, demoToken);
-      localStorage.setItem(USER_KEY, JSON.stringify(defaultUser));
-      setState({
-        user: defaultUser,
-        token: demoToken,
-        isAuthenticated: true,
-        isLoading: false,
+        return current;
       });
-    }
+    };
 
-    const handleUnauthorized = () => logout();
-    window.addEventListener("iw3:unauthorized", handleUnauthorized);
-    return () => window.removeEventListener("iw3:unauthorized", handleUnauthorized);
-  }, [logout]);
+    window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+    window.addEventListener("storage", onStorage);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+      window.removeEventListener("storage", onStorage);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [endSession]);
 
-  const login = async (username: string, password: string) => {
-    setState((prev) => ({ ...prev, isLoading: true }));
-    try {
-      const { token, user } = await authApi.login(username, password);
-      localStorage.setItem(TOKEN_KEY, token);
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
-      setState({
-        user,
-        token,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-    } catch (err) {
-      setState((prev) => ({ ...prev, isLoading: false }));
-      throw err;
-    }
-  };
+  const login = React.useCallback(async (username: string, password: string) => {
+    // Si falla, el error (ApiError con el mensaje real) sube a la pantalla de login y no queda nada guardado.
+    const next = await authApi.login(username, password);
+    writeStoredToken(next.token);
+    setEndReason(null);
+    setSession(next);
+  }, []);
 
-  const hasRole = (requiredRoles: UserRole | UserRole[]): boolean => {
-    if (!state.user) return false;
-    const required = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
-    return state.user.roles.some((r) => required.includes(r));
-  };
+  const value = React.useMemo<AuthContextType>(() => {
+    const roles = session?.roles ?? [];
+    return {
+      user: session ? { username: session.username, email: session.email, roles: session.roles } : null,
+      token: session?.token ?? null,
+      isAuthenticated: session !== null,
+      isLoading,
+      endReason,
+      login,
+      logout,
+      hasRole: (required) => hasAnyRole(roles, Array.isArray(required) ? required : [required]),
+      can: (permission) => canDo(roles, permission),
+    };
+  }, [session, isLoading, endReason, login, logout]);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        ...state,
-        login,
-        logout,
-        hasRole,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
