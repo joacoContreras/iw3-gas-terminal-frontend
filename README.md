@@ -22,6 +22,14 @@ Interfaz web interactiva orientada a la visualización y control operativo del c
 
 ## Primeros Pasos
 
+Copiá `.env.example` a `.env.local` y ajustá la dirección del backend (no tiene valor por defecto; sin ella el cliente HTTP falla con un mensaje claro):
+
+```bash
+cp .env.example .env.local   # NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+```
+
+`NEXT_PUBLIC_API_URL` se **incrusta al compilar**: en producción se pasa como `--build-arg` al `docker build` (ver el `Dockerfile` y el workflow). El backend se levanta desde su repo (`iw3-gas-terminal-backend`) y el contrato de la API está en `docs/contrato-api.md`.
+
 Para iniciar el servidor de desarrollo:
 
 ```bash
@@ -36,3 +44,4 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador para interac
 * `npm run build`: Compila y genera el bundle optimizado para producción.
 * `npm run start`: Ejecuta el servidor en modo producción.
 * `npm run lint`: Ejecuta el linter ESLint para análisis de código.
+* `npm test`: Ejecuta las pruebas unitarias (todos los `*.test.mjs`) con el ejecutor de Node.

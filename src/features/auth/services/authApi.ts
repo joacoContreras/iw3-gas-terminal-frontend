@@ -43,6 +43,7 @@ export const authApi = {
 
       const token = await apiClient<string>("/login", {
         method: "POST",
+        auth: false, // el login no manda token: un 401 acá son credenciales incorrectas, no una sesión vencida
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
