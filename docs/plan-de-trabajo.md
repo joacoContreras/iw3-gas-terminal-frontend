@@ -201,6 +201,8 @@ ve solo lo que le corresponde (verificado con los usuarios sembrados); el 403 de
 
 ### 4.6 Fase 6 — Órdenes: listado, filtros, monitoreo, detalle, ETA y tiempo transcurrido (consigna 4b, 4c, 4d)
 
+> **Estado (12/11/2026): implementada y probada** (rama `fase-6-ordenes`, sin commitear). T1 a T9 hechas, salvo la **búsqueda por texto de T2**: el backend no la ofrece y hacerla en el cliente solo miraría la página actual (queda como limitación, decisión F-2). 127 tests, 5 mutaciones y 93 verificaciones con Chrome real. Informe: `docs/fase-6-ordenes.md`.
+
 | Tarea | Detalle |
 |---|---|
 | T1 | `ordersApi` real: listado paginado con `status` y orden; detalle por `orderNumber`; rutas `/orders/[orderNumber]` |
