@@ -1,6 +1,6 @@
 # Fase 7 — Conciliación (consigna 4f)
 
-**Rama:** `fase-7-conciliacion` (desde `main`, `0181d97`) · **Fecha:** 13/11/2026 · **Estado:** implementada y probada  
+**Rama:** `fase-7-conciliacion` (desde `main`, `0181d97`) · **Fecha:** 13/11/2026 · **Estado:** integrada en `main` (PR #7) y desplegada  
 **Objetivo:** que la pantalla de conciliación (`/orders/[orderNumber]/reconciliation`) consuma los datos reales del backend (`GET /orders/{orderNumber}/reconciliation`), combinados con los datos de la orden (`GET /orders/{orderNumber}`) para generar el remito oficial imprimible, calcule de forma segura el porcentaje de desvío y restrinja el acceso a órdenes en estado 4 manejando el error HTTP 409.
 
 ---

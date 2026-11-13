@@ -1,6 +1,6 @@
 # Fase 4 — Conexión real: cliente HTTP, tipos y errores
 
-**Rama:** `fase-4-conexion` (desde `main`, `f73db4d`) · **Fecha:** 12/11/2026 · **Estado:** implementada, probada y pusheada (sin PR)
+**Rama:** `fase-4-conexion` (desde `main`, `f73db4d`) · **Fecha:** 12/11/2026 · **Estado:** integrada en `main` (PR #4) y desplegada
 **Objetivo:** que el frontend deje de hablar con una API imaginada y use el contrato real del backend (`docs/contrato-api.md`), con errores claros y sin datos falsos.
 **Regla 9 (Next 16):** antes de escribir código se leyó la guía `node_modules/next/dist/docs/01-app/02-guides/environment-variables.md`; condiciona el diseño (ver C-2).
 

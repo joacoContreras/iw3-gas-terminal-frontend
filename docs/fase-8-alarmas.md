@@ -1,6 +1,6 @@
 # Fase 8 — Alarmas en la UI (consigna 4e)
 
-**Rama:** `fase-8-alarmas` (desde `fase-7-conciliacion`, `af31a38`) · **Fecha:** 13/11/2026 · **Estado:** implementada y probada  
+**Rama:** `fase-8-alarmas` (desde `fase-7-conciliacion`, `af31a38`) · **Fecha:** 13/11/2026 · **Estado:** integrada en `main` (PR #7) y desplegada  
 **Objetivo:** que la supervisión y gestión de alarmas de temperatura por correo (consigna 3 y 4e) operen en tiempo real contra los endpoints del backend (`GET /alarms`, `POST /alarms/{id}/acknowledge`, `GET /alarms/config` y `PUT /alarms/config`), sin mocks, mostrando el banner global, campana con contador, estado de envío de e-mail, auditoría de usuario y configuración segura.
 
 ---
