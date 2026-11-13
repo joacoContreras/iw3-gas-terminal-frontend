@@ -220,6 +220,8 @@ el ETA y el tiempo transcurrido coinciden con un cálculo manual; el tiempo tran
 
 ### 4.7 Fase 7 — Conciliación (consigna 4f)
 
+> **Estado (13/11/2026): implementada y probada** (rama `fase-7-conciliacion`). T1 a T5 hechas. 139 tests (12 nuevos), lint y build en verde. Conexión a `GET /orders/{orderNumber}/reconciliation` combinada con `getOrder` para remito imprimible, cálculo seguro de porcentaje derivado y manejo de 409. Informe: `docs/fase-7-conciliacion.md`.
+
 | Tarea | Detalle |
 |---|---|
 | T1 | `reconciliationApi` real (`/orders/{n}/reconciliation`); combinar con la orden para mostrar patente, chofer, cliente y producto |

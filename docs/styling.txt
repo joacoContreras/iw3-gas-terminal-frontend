@@ -1,0 +1,125 @@
+Diseñar el frontend de **AetherLoad**, un sistema de administración de órdenes de carga de gas líquido con información en tiempo real e integración con SAP y TMS.
+
+La identidad visual debe transmitir tecnología, dinamismo, confianza y control operativo, tomando como referencia el logo: fondo azul petróleo, acentos turquesa, elementos blancos y formas fluidas dentro de una estructura geométrica.
+
+**1. Paleta de colores**
+
+| Uso | Color | Código |
+|---|---|---|
+| Fondo general | Azul noche | `#001827` |
+| Navegación y encabezados | Azul petróleo profundo | `#002B3B` |
+| Tarjetas y paneles | Azul petróleo | `#073747` |
+| Superficies elevadas y hover | Azul petróleo claro | `#0D4656` |
+| Acento principal | Turquesa | `#00D6D2` |
+| Acento luminoso | Aguamarina | `#65F5E6` |
+| Acento secundario | Cian | `#00B8D9` |
+| Texto principal | Blanco frío | `#F4F8FB` |
+| Texto secundario | Gris azulado claro | `#ABC3CE` |
+| Bordes y divisores | Azul grisáceo | `#285362` |
+
+Usar los tonos oscuros para la mayor parte de la interfaz. Reservar el turquesa para acciones principales, selección, foco y datos destacados.
+
+Aplicar un degradado de `#00D6D2` a `#65F5E6` en detalles puntuales, como el botón principal o un indicador de progreso. Mantener fondos y tablas mayormente planos para facilitar la lectura.
+
+**2. Estilo visual**
+
+Combinar una estructura ordenada y geométrica con detalles suaves inspirados en las ondas del logo:
+
+- Paneles rectangulares con esquinas de entre 12 y 16 px.
+- Botones y campos con esquinas de 8 px.
+- Bordes finos y sombras suaves.
+- Iconos de trazo simple y grosor uniforme.
+- Curvas y ondas decorativas discretas en el acceso o encabezado del dashboard.
+
+El hexágono puede aparecer en detalles de identidad, pero no debe convertirse en la forma habitual de botones, tarjetas o controles. El brillo del logo debe trasladarse a pequeños acentos; las pantallas de trabajo deben priorizar la legibilidad.
+
+**3. Tipografía y jerarquía**
+
+Utilizar una tipografía sans serif de formas limpias, como **Inter**, con una alternativa de sistema.
+
+- Título de pantalla: 28–32 px, peso 600 o 700.
+- Títulos de sección: 20–24 px, peso 600.
+- Texto, tablas y controles: 14–16 px.
+- Etiquetas y metadatos: 12–13 px.
+- Valores principales de indicadores: 28–36 px.
+
+Usar números de ancho uniforme en cantidades, horarios, porcentajes y volúmenes para facilitar su comparación. Mostrar siempre las unidades correspondientes.
+
+**4. Estructura de las pantallas**
+
+En escritorio, utilizar una barra lateral de aproximadamente 240 px y un encabezado superior compacto.
+
+La barra lateral debe incluir el logo y accesos a las funciones del sistema, como Dashboard, Órdenes de carga, Monitoreo e Integraciones. Destacar la sección activa mediante un fondo turquesa tenue, un indicador lateral y texto claro.
+
+El área principal debe tener márgenes de 24–32 px y una jerarquía consistente:
+
+- Encabezado con título, descripción breve y acción principal.
+- Indicadores relevantes para la pantalla.
+- Filtros y búsqueda.
+- Tabla, formulario o contenido operativo.
+
+Usar una escala de espaciado de 4, 8, 12, 16, 24 y 32 px.
+
+**5. Botones y acciones**
+
+El botón principal debe tener fondo turquesa, texto azul noche y peso semibold. Ejemplos: “Nueva orden” o “Guardar cambios”.
+
+Los botones secundarios deben usar fondo transparente o azul petróleo, borde visible y texto claro. Las acciones terciarias pueden presentarse como texto con icono.
+
+Cada pantalla debe tener una acción principal claramente reconocible. Las acciones destructivas deben utilizar rojo y una etiqueta explícita.
+
+Incluir estados diferenciados de hover, foco, presionado, cargando y deshabilitado. El estado de carga debe conservar el ancho del botón para evitar movimientos en la interfaz.
+
+**6. Tablas de órdenes de carga**
+
+Las tablas deben ser el centro de las pantallas operativas, con filas fáciles de recorrer visualmente y encabezados claramente diferenciados.
+
+- Alinear textos a la izquierda y cantidades a la derecha.
+- Usar separadores horizontales discretos.
+- Resaltar la fila bajo el cursor con un cambio suave de fondo.
+- Mantener visibles los encabezados en listados extensos.
+- Mostrar estados mediante etiquetas con texto e indicador visual.
+- Agrupar las acciones de cada orden de forma consistente.
+- Diferenciar valores ausentes de valores iguales a cero.
+
+Ubicar búsqueda, filtros y ordenamiento encima de la tabla. Mostrar los filtros activos y ofrecer una acción para limpiarlos.
+
+**7. Formularios**
+
+Utilizar etiquetas visibles sobre cada campo, fondos oscuros y bordes definidos. Los placeholders deben funcionar como ejemplos, sin reemplazar las etiquetas.
+
+Al recibir foco, el campo debe mostrar un borde turquesa y un contorno exterior perceptible.
+
+Agrupar los datos por propósito, por ejemplo: información de la orden, transporte, producto y programación de carga. Mostrar errores junto al campo afectado con una explicación concreta para corregirlos.
+
+**8. Estados y mensajes**
+
+| Estado | Color propuesto | Tratamiento |
+|---|---|---|
+| Completado o conexión correcta | `#34D399` | Etiqueta verde con texto |
+| En proceso | `#00D6D2` | Etiqueta turquesa |
+| Pendiente o requiere atención | `#FBBF24` | Etiqueta ámbar |
+| Error o fallo de integración | `#FB7185` | Etiqueta roja |
+| Cancelado o inactivo | `#94A3B8` | Etiqueta gris |
+
+Aplicar estos colores sobre fondos tenues de la misma familia. Acompañar siempre el color con una descripción o icono.
+
+Distinguir el **estado de la orden** del **estado de sincronización**: una orden puede estar pendiente y, al mismo tiempo, correctamente sincronizada con SAP.
+
+**9. Dashboard e integraciones**
+
+Presentar indicadores con un título breve, un valor destacado y contexto suficiente para interpretarlo. Usar el turquesa para resaltar información relevante sin colorear todos los valores.
+
+Los gráficos deben tener líneas claras, grillas discretas, etiquetas legibles y colores consistentes.
+
+En las integraciones con SAP y TMS, mostrar el estado de conexión, la última sincronización y los errores pendientes cuando esos datos estén disponibles. Diferenciar claramente una actualización en curso de una falla de conexión.
+
+**10. Movimiento y adaptación**
+
+Usar transiciones de 150–200 ms para botones, menús y paneles. Reservar las animaciones continuas para procesos que realmente estén en ejecución y respetar la preferencia de movimiento reducido.
+
+En pantallas pequeñas, convertir la barra lateral en un menú desplegable y reorganizar los indicadores. Mantener accesibles las acciones principales y permitir desplazamiento horizontal en tablas cuando sea necesario.
+
+Comprobar un contraste mínimo de 4,5:1 en texto normal, permitir navegación por teclado y mostrar un foco visible en todos los controles.
+
+El resultado debe sentirse como un centro de control moderno: **superficies oscuras, información ordenada, acciones turquesa y detalles fluidos que conecten la interfaz con el logo de AetherLoad**.

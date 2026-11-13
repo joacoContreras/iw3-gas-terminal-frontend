@@ -1,3 +1,8 @@
+/**
+ * LEGACY: tipo heredado contra la API vieja/imaginada.
+ * Solo lo utiliza `src/services/mock/mockStore.ts` hasta su eliminación definitiva en la Fase 9 (D-7).
+ * El código de producción de conciliación (Fase 7) utiliza exclusivamente `@/types/api` (`Reconciliation`, `Order`).
+ */
 export interface ReconciliationData {
   orderId: number;
   orderNumber: number;
