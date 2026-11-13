@@ -1,13 +1,13 @@
 import { apiClient } from "@/services/api/client";
-import { ReconciliationData } from "@/types/reconciliation";
-import { MockStore } from "@/services/mock/mockStore";
+import type { Reconciliation } from "@/types/api";
 
+/**
+ * Conciliación contra el backend real (`GET /orders/{orderNumber}/reconciliation`).
+ * Punto 5: balanza vs. caudalímetro másico. Solo disponible para órdenes en estado 4 (finalizadas);
+ * otros estados responden 409 con el mensaje del backend.
+ */
 export const reconciliationApi = {
-  async getReconciliation(orderId: number): Promise<ReconciliationData> {
-    try {
-      return await apiClient<ReconciliationData>(`/orders/${orderId}/reconciliation`);
-    } catch {
-      return MockStore.getReconciliation(orderId);
-    }
+  getReconciliation(orderNumber: number, signal?: AbortSignal): Promise<Reconciliation> {
+    return apiClient<Reconciliation>(`/orders/${orderNumber}/reconciliation`, { signal });
   },
 };

@@ -1,10 +1,52 @@
-/*
- * La ETA y el tiempo transcurrido de la carga viven ahora en `features/orders/lib/order-metrics.ts` y `lib/dates.ts`
- * (Fase 6). Lo que queda acá es de la conciliación y se reescribe en la Fase 7.
+/**
+ * Métricas y cálculos derivados de la conciliación (Fase 7).
+ *
+ * En el backend (docs/contrato-api.md, sección 4.5):
+ * - `scaleNet = finalWeight - tare`
+ * - `difference = scaleNet - loadedProduct`
+ *
+ * El porcentaje de desvío NO viene del backend: se calcula en el frontend como:
+ * `(difference / scaleNet) * 100` (consigna 4f y contrato congelado).
  */
 
+/** Tolerancia estándar típica en terminales de gas licuado: ±1.0%. */
+export const DEFAULT_RECONCILIATION_TOLERANCE_PERCENT = 1.0;
+
 /**
- * Calculates reconciliation metrics between scale and flow meter
+ * Calcula el porcentaje de diferencia balanza vs. caudalímetro:
+ * `(difference / scaleNet) * 100`
+ *
+ * Devuelve `null` si el neto por balanza es 0 o negativo, o si los valores no son finitos.
+ * Redondea a 2 decimales para evitar problemas de coma flotante.
+ */
+export function calculateDifferencePercentage(
+  difference: number,
+  scaleNet: number
+): number | null {
+  if (!Number.isFinite(difference) || !Number.isFinite(scaleNet) || scaleNet <= 0) {
+    return null;
+  }
+  const pct = (difference / scaleNet) * 100;
+  return Number.isFinite(pct) ? Number(pct.toFixed(2)) : null;
+}
+
+/**
+ * Comprueba si el porcentaje de desvío está dentro de la tolerancia admitida.
+ * Devuelve `false` si el porcentaje es `null` o no numérico.
+ */
+export function isWithinTolerance(
+  differencePercentage: number | null,
+  tolerancePercent: number = DEFAULT_RECONCILIATION_TOLERANCE_PERCENT
+): boolean {
+  if (differencePercentage === null || !Number.isFinite(differencePercentage)) {
+    return false;
+  }
+  return Math.abs(differencePercentage) <= tolerancePercent;
+}
+
+/**
+ * Cálculo integral de conciliación a partir de pesajes y masa cargada.
+ * Mantiene compatibilidad con módulos y pruebas existentes.
  */
 export function calculateReconciliationMetrics(
   initialWeightKg: number,
@@ -14,13 +56,12 @@ export function calculateReconciliationMetrics(
   const netByScale = Math.max(0, (finalWeightKg || 0) - (initialWeightKg || 0));
   const productLoadedByMeter = Math.max(0, meterLoadedKg || 0);
   const difference = netByScale - productLoadedByMeter;
-  const differencePercentage =
-    netByScale > 0 ? (difference / netByScale) * 100 : 0;
+  const differencePercentage = calculateDifferencePercentage(difference, netByScale) ?? 0;
 
   return {
     netByScale,
     productLoadedByMeter,
     differenceScaleVsMeter: difference,
-    differencePercentage: Number(differencePercentage.toFixed(2)),
+    differencePercentage,
   };
 }

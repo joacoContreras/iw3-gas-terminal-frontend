@@ -14,11 +14,11 @@ export function ForbiddenView({
 }) {
   return (
     <div role="alert" className="mx-auto flex max-w-md flex-col items-center gap-3 py-16 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-500 dark:bg-zinc-800">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-elevated text-muted">
         <ShieldOff className="h-6 w-6" />
       </div>
-      <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{title}</h1>
-      <p className="text-sm text-zinc-500">{message}</p>
+      <h1 className="page-title text-lg font-bold text-foreground">{title}</h1>
+      <p className="text-sm text-muted">{message}</p>
     </div>
   );
 }

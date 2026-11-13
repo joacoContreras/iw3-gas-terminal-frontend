@@ -220,6 +220,8 @@ el ETA y el tiempo transcurrido coinciden con un cálculo manual; el tiempo tran
 
 ### 4.7 Fase 7 — Conciliación (consigna 4f)
 
+> **Estado (13/11/2026): implementada y probada** (rama `fase-7-conciliacion`). T1 a T5 hechas. 139 tests (12 nuevos), lint y build en verde. Conexión a `GET /orders/{orderNumber}/reconciliation` combinada con `getOrder` para remito imprimible, cálculo seguro de porcentaje derivado y manejo de 409. Informe: `docs/fase-7-conciliacion.md`.
+
 | Tarea | Detalle |
 |---|---|
 | T1 | `reconciliationApi` real (`/orders/{n}/reconciliation`); combinar con la orden para mostrar patente, chofer, cliente y producto |
@@ -231,6 +233,8 @@ el ETA y el tiempo transcurrido coinciden con un cálculo manual; el tiempo tran
 **Criterios:** los valores coinciden con la respuesta del backend y con un cálculo manual; órdenes en estados 1 a 3 no permiten ver la conciliación.
 
 ### 4.8 Fase 8 — Alarmas en la UI (consigna 4e)
+
+> **Estado (13/11/2026): implementada y probada** (rama `fase-8-alarmas`). T1 a T6 hechas. 152 tests (13 nuevos de validación), lint con 1 sola advertencia (legacy), build en verde. Consumo real de los 4 endpoints de `/alarms`, banner global, modal de aceptación sin username en payload (D-5), visualización de `emailSentAt` y formulario de configuración con validación estricta. Informe: `docs/fase-8-alarmas.md`.
 
 | Tarea | Detalle |
 |---|---|
@@ -245,6 +249,8 @@ el ETA y el tiempo transcurrido coinciden con un cálculo manual; el tiempo tran
 un rol no autorizado no ve el botón de aceptar y, si lo fuerza, recibe un 403 comprensible.
 
 ### 4.9 Fase 9 — Simulador de integración real
+
+> **Estado (13/11/2026): implementada y probada** (rama `fase-9-simulador`, sin commit). T1 a T7 hechas. 162 tests, lint sin advertencias y build en verde; **70 verificaciones en Chrome contra Spring Boot y MySQL locales**, con circuito completo, errores 302/400/403, alarma y correo capturado por SMTP local, conciliación y restricción de los cinco roles sin ADMIN. Se eliminaron el mock y los tipos heredados. La entrega del correo a una casilla externa y la prueba en la VM siguen pendientes para el cierre. Informe: `docs/fase-9-simulador.md`.
 
 **Objetivo:** que el simulador recorra el circuito real (Puntos 1 a 5) para la demostración, hablando con los endpoints verdaderos.
 

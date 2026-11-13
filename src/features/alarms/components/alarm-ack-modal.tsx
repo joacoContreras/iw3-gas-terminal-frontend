@@ -1,22 +1,24 @@
 "use client";
 
 import * as React from "react";
-import { Alarm } from "@/types/alarm";
+import type { TemperatureAlarm } from "@/types/api";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/context/AuthContext";
-import { formatTemperature, formatDateTime } from "@/lib/formatters";
+import { formatTemperature } from "@/lib/formatters";
+import { formatBackendDateTime } from "@/lib/dates";
+import { errorMessage } from "@/services/api/client";
+import { validateObservation, MAX_OBSERVATION_LENGTH } from "../lib/alarm-validation";
 import { AlertTriangle, CheckCircle } from "lucide-react";
 
 interface AlarmAckModalProps {
-  alarm: Alarm | null;
+  alarm: TemperatureAlarm | null;
   isOpen: boolean;
   onClose: () => void;
   onAcknowledge: (
     alarmId: number,
-    username: string,
     observation?: string
-  ) => Promise<any>;
+  ) => Promise<TemperatureAlarm>;
 }
 
 export function AlarmAckModal({
@@ -30,18 +32,30 @@ export function AlarmAckModal({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (isOpen) {
+      setObservation("");
+      setError(null);
+    }
+  }, [isOpen, alarm]);
+
   if (!alarm) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const obsValidation = validateObservation(observation);
+    if (!obsValidation.valid) {
+      setError(obsValidation.error ?? "Observación inválida");
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
     try {
-      await onAcknowledge(alarm.id, user?.username || "operador", observation);
-      setObservation("");
+      await onAcknowledge(alarm.id, observation);
       onClose();
-    } catch (err: any) {
-      setError(err.message || "Error al aceptar la alarma");
+    } catch (err: unknown) {
+      setError(errorMessage(err, "Error al aceptar la alarma"));
     } finally {
       setIsSubmitting(false);
     }
@@ -52,54 +66,67 @@ export function AlarmAckModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Aceptación de Alarma de Temperatura"
-      description={`Orden #${alarm.orderNumber} - Se superó el umbral de seguridad`}
+      description={`Orden #${alarm.orderNumber} — Registro de superación de umbral`}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Warning Callout */}
-        <div className="flex items-start gap-3 p-3.5 bg-rose-50 dark:bg-rose-950/30 rounded-xl border border-rose-200 dark:border-rose-900/40 text-xs text-rose-800 dark:text-rose-300">
-          <AlertTriangle className="h-5 w-5 text-rose-600 shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 p-3.5 bg-danger/10 rounded-xl border border-danger/30 text-xs text-danger-ink">
+          <AlertTriangle className="h-5 w-5 text-danger-ink shrink-0 mt-0.5" />
           <div>
-            <span className="font-bold">Temperatura registrada: {formatTemperature(alarm.temperature)}</span>
-            <p className="mt-0.5 text-rose-700/80 dark:text-rose-300/80">
-              Umbral configurado: {formatTemperature(alarm.threshold)}. Al confirmar, se registrará tu usuario y fecha/hora de aceptación, habilitando nuevos avisos si la condición persiste.
+            <span className="font-bold">
+              Temperatura registrada: {formatTemperature(alarm.temperature)}
+            </span>
+            <p className="mt-0.5 text-danger-ink">
+              Umbral configurado: {formatTemperature(alarm.threshold)}. Al confirmar, se registrará tu usuario ({user?.username}) y fecha/hora de aceptación en la auditoría del sistema.
             </p>
           </div>
         </div>
 
         {/* Audit Data Preview */}
-        <div className="grid grid-cols-2 gap-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl text-xs text-zinc-600 dark:text-zinc-400">
+        <div className="grid grid-cols-2 gap-3 p-3 bg-canvas rounded-xl text-xs text-muted">
           <div>
-            <span className="text-zinc-400 block text-[11px]">Usuario responsable:</span>
-            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+            <span className="text-muted block text-xs">Usuario responsable:</span>
+            <span className="font-semibold text-foreground">
               {user?.username || "Usuario autenticado"}
             </span>
           </div>
           <div>
-            <span className="text-zinc-400 block text-[11px]">Disparo de alarma:</span>
-            <span className="font-mono text-zinc-900 dark:text-zinc-100">
-              {formatDateTime(alarm.triggeredAt)}
+            <span className="text-muted block text-xs">Disparo de alarma:</span>
+            <span className="font-mono text-foreground">
+              {formatBackendDateTime(alarm.triggeredAt)}
             </span>
           </div>
         </div>
 
         {/* Observation input */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
-            Observación / Medida tomada (Opcional):
-          </label>
+          <div className="flex justify-between items-center text-xs">
+            <label htmlFor="alarm-observation" className="font-medium text-foreground">
+              Observación / Medida tomada (opcional):
+            </label>
+            <span className="text-xs text-muted">
+              {observation.length}/{MAX_OBSERVATION_LENGTH}
+            </span>
+          </div>
           <textarea
+            id="alarm-observation"
             value={observation}
+            maxLength={MAX_OBSERVATION_LENGTH}
             onChange={(e) => setObservation(e.target.value)}
-            placeholder="Ej: Se verificó el intercambiador de calor y se estabilizó la presión..."
+            placeholder="Ej: Se verificó la válvula de retorno y se estabilizó la temperatura..."
             rows={3}
-            className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-3 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="control-input"
           />
         </div>
 
-        {error && <p className="text-xs text-rose-500">{error}</p>}
+        {error && (
+          <p role="alert" className="text-xs text-danger-ink font-medium">
+            {error}
+          </p>
+        )}
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-          <Button type="button" variant="outline" size="sm" onClick={onClose}>
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-line">
+          <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
             Cancelar
           </Button>
           <Button

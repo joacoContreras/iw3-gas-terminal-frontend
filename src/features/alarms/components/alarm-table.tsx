@@ -2,48 +2,50 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Alarm } from "@/types/alarm";
+import type { TemperatureAlarm } from "@/types/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PermissionGate } from "@/components/shared/permission-gate";
-import { formatTemperature, formatDateTime } from "@/lib/formatters";
-import { AlertCircle, CheckCircle2, Eye, ShieldAlert } from "lucide-react";
+import { formatTemperature } from "@/lib/formatters";
+import { formatBackendDateTime } from "@/lib/dates";
+import { AlertCircle, CheckCircle2, Eye, ShieldAlert, Mail, MailX } from "lucide-react";
 
 interface AlarmTableProps {
-  alarms: Alarm[];
-  onOpenAckModal: (alarm: Alarm) => void;
+  alarms: TemperatureAlarm[];
+  onOpenAckModal: (alarm: TemperatureAlarm) => void;
 }
 
 export function AlarmTable({ alarms, onOpenAckModal }: AlarmTableProps) {
   if (alarms.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/50">
-        <ShieldAlert className="h-10 w-10 text-zinc-300 dark:text-zinc-600 mb-3" />
-        <h4 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+      <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-line rounded-2xl bg-panel/50">
+        <ShieldAlert className="h-10 w-10 text-muted mb-3" />
+        <h4 className="text-sm font-semibold text-foreground">
           No hay alarmas registradas
         </h4>
-        <p className="text-xs text-zinc-500 max-w-sm mt-1">
-          El sistema no ha detectado temperaturas que superen el umbral configurado.
+        <p className="text-xs text-muted max-w-sm mt-1">
+          No se registran alarmas para el filtro seleccionado.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-zinc-200/80 bg-white shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-      <table className="w-full text-left text-xs sm:text-sm text-zinc-600 dark:text-zinc-300">
-        <thead className="bg-zinc-50/80 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 border-b border-zinc-200/80 dark:bg-zinc-800/40 dark:border-zinc-800 dark:text-zinc-400">
+    <div className="aether-table">
+      <table className="w-full text-left text-sm text-muted">
+        <thead className="bg-canvas/80 text-xs font-semibold uppercase tracking-wider text-muted border-b border-line/80">
           <tr>
             <th className="py-3.5 px-4">Estado</th>
             <th className="py-3.5 px-4">Orden</th>
             <th className="py-3.5 px-4">Temp. Registrada</th>
             <th className="py-3.5 px-4">Umbral</th>
-            <th className="py-3.5 px-4">Fecha y Hora</th>
-            <th className="py-3.5 px-4">Auditoría / Aceptación</th>
+            <th className="py-3.5 px-4">Disparo</th>
+            <th className="py-3.5 px-4">Notificación E-mail</th>
+            <th className="py-3.5 px-4">Aceptación / Auditoría</th>
             <th className="py-3.5 px-4 text-right">Acción</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
+        <tbody className="divide-y divide-line font-sans">
           {alarms.map((alarm) => {
             const isPending = alarm.status === "PENDING";
 
@@ -52,14 +54,14 @@ export function AlarmTable({ alarms, onOpenAckModal }: AlarmTableProps) {
                 key={alarm.id}
                 className={
                   isPending
-                    ? "bg-rose-50/30 hover:bg-rose-50/50 dark:bg-rose-950/20 dark:hover:bg-rose-950/30 transition-colors"
-                    : "hover:bg-zinc-50/60 dark:hover:bg-zinc-800/20 transition-colors"
+                    ? "bg-danger/10 hover:bg-danger/10 transition-colors"
+                    : "hover:bg-canvas/60 transition-colors"
                 }
               >
                 {/* Estado */}
                 <td className="py-4 px-4">
                   {isPending ? (
-                    <Badge variant="danger" className="gap-1 animate-pulse">
+                    <Badge variant="danger" className="gap-1 ">
                       <AlertCircle className="h-3.5 w-3.5" />
                       Pendiente
                     </Badge>
@@ -72,48 +74,66 @@ export function AlarmTable({ alarms, onOpenAckModal }: AlarmTableProps) {
                 </td>
 
                 {/* Orden */}
-                <td className="py-4 px-4 font-mono font-semibold text-zinc-900 dark:text-zinc-100">
+                <td className="py-4 px-4 font-mono font-semibold text-foreground">
                   <Link
-                    href={`/orders/${alarm.orderId}`}
-                    className="hover:text-blue-600 underline flex items-center gap-1"
+                    href={`/orders/${alarm.orderNumber}`}
+                    className="hover:text-accent underline inline-flex items-center gap-1"
+                    title="Ver orden asociada"
                   >
                     #{alarm.orderNumber}
                   </Link>
                 </td>
 
                 {/* Temp */}
-                <td className="py-4 px-4 font-mono font-bold text-rose-600 dark:text-rose-400 text-sm">
+                <td className="py-4 px-4 font-mono font-bold text-danger-ink text-sm">
                   {formatTemperature(alarm.temperature)}
                 </td>
 
                 {/* Umbral */}
-                <td className="py-4 px-4 font-mono text-zinc-500">
+                <td className="py-4 px-4 font-mono text-muted">
                   {formatTemperature(alarm.threshold)}
                 </td>
 
-                {/* Fecha */}
-                <td className="py-4 px-4 font-mono text-zinc-500 text-xs">
-                  {formatDateTime(alarm.triggeredAt)}
+                {/* Fecha de disparo */}
+                <td className="py-4 px-4 font-mono text-muted text-xs">
+                  {formatBackendDateTime(alarm.triggeredAt)}
                 </td>
 
-                {/* Auditoría */}
+                {/* Estado del envío de e-mail */}
+                <td className="py-4 px-4 text-xs">
+                  {alarm.emailSentAt ? (
+                    <div className="flex items-center gap-1.5 text-success font-medium">
+                      <Mail className="h-3.5 w-3.5 shrink-0" />
+                      <span className="font-mono text-xs">
+                        {formatBackendDateTime(alarm.emailSentAt)}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-muted">
+                      <MailX className="h-3.5 w-3.5 shrink-0" />
+                      <span className="text-xs italic">Correo no enviado</span>
+                    </div>
+                  )}
+                </td>
+
+                {/* Auditoría de Aceptación */}
                 <td className="py-4 px-4 text-xs">
                   {!isPending && alarm.acknowledgedBy ? (
-                    <div>
-                      <div className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    <div className="space-y-0.5">
+                      <div className="font-semibold text-foreground">
                         {alarm.acknowledgedBy}
                       </div>
-                      <div className="text-[11px] text-zinc-400">
-                        {formatDateTime(alarm.acknowledgedAt)}
+                      <div className="text-xs font-mono text-muted">
+                        {formatBackendDateTime(alarm.acknowledgedAt)}
                       </div>
                       {alarm.observation && (
-                        <p className="text-[11px] text-zinc-500 italic mt-0.5">
+                        <p className="text-xs text-muted italic">
                           &quot;{alarm.observation}&quot;
                         </p>
                       )}
                     </div>
                   ) : (
-                    <span className="text-zinc-400 italic">No atendida</span>
+                    <span className="text-muted italic">Sin aceptar</span>
                   )}
                 </td>
 
@@ -122,7 +142,11 @@ export function AlarmTable({ alarms, onOpenAckModal }: AlarmTableProps) {
                   {isPending ? (
                     <PermissionGate
                       permission="alarms:acknowledge"
-                      fallback={<span className="text-[11px] text-zinc-400">Requiere supervisor</span>}
+                      fallback={
+                        <span className="text-xs text-muted italic">
+                          Requiere supervisor
+                        </span>
+                      }
                     >
                       <Button
                         variant="danger"
@@ -134,8 +158,13 @@ export function AlarmTable({ alarms, onOpenAckModal }: AlarmTableProps) {
                       </Button>
                     </PermissionGate>
                   ) : (
-                    <Link href={`/orders/${alarm.orderId}`}>
-                      <Button variant="ghost" size="sm" className="h-8 px-2 text-zinc-400 hover:text-zinc-700">
+                    <Link href={`/orders/${alarm.orderNumber}`}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2 text-muted hover:text-foreground"
+                        title="Ver detalle de la orden"
+                      >
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
                     </Link>

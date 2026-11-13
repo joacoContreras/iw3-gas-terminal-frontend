@@ -23,18 +23,18 @@ export function OrderTable({ orders, emptyMessage = "No hay órdenes registradas
 
   if (orders.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-zinc-200 rounded-2xl dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
-        <Truck className="h-10 w-10 text-zinc-300 dark:text-zinc-600 mb-3" />
-        <h4 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">No se encontraron órdenes</h4>
-        <p className="text-xs text-zinc-500 max-w-sm mt-1">{emptyMessage}</p>
+      <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-line rounded-2xl bg-panel/50">
+        <Truck className="h-10 w-10 text-muted mb-3" />
+        <h4 className="text-sm font-semibold text-foreground">No se encontraron órdenes</h4>
+        <p className="text-xs text-muted max-w-sm mt-1">{emptyMessage}</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-zinc-200/80 bg-white shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-      <table className="w-full text-left text-xs sm:text-sm text-zinc-600 dark:text-zinc-300">
-        <thead className="bg-zinc-50/80 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 border-b border-zinc-200/80 dark:bg-zinc-800/40 dark:border-zinc-800 dark:text-zinc-400">
+    <div className="aether-table">
+      <table className="w-full text-left text-sm text-muted">
+        <thead className="bg-canvas/80 text-xs font-semibold uppercase tracking-wider text-muted border-b border-line/80">
           <tr>
             <th className="py-3.5 px-4">Orden</th>
             <th className="py-3.5 px-4">Estado</th>
@@ -47,7 +47,7 @@ export function OrderTable({ orders, emptyMessage = "No hay órdenes registradas
             <th className="py-3.5 px-4 text-right">Acciones</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
+        <tbody className="divide-y divide-line">
           {orders.map((order) => {
             const progress = loadProgress(order.preset, order.lastAccumulatedMass);
             const eta = calculateEta({ status: order.status, preset: order.preset, accumulatedMass: order.lastAccumulatedMass, flowRate: order.lastFlowRate });
@@ -55,10 +55,10 @@ export function OrderTable({ orders, emptyMessage = "No hay órdenes registradas
             const hasReadings = order.lastTemperature !== null;
 
             return (
-              <tr key={order.orderNumber} className="hover:bg-zinc-50/70 transition-colors dark:hover:bg-zinc-800/30" data-testid={`order-row-${order.orderNumber}`}>
+              <tr key={order.orderNumber} className="hover:bg-canvas/70 transition-colors" data-testid={`order-row-${order.orderNumber}`}>
                 <td className="py-4 px-4 font-mono">
-                  <div className="font-semibold text-zinc-900 dark:text-zinc-100">#{order.orderNumber}</div>
-                  <div className="text-[11px] text-zinc-400" title="Carga planificada">
+                  <div className="font-semibold text-foreground">#{order.orderNumber}</div>
+                  <div className="text-xs text-muted" title="Carga planificada">
                     {formatBackendDateTime(order.plannedLoadDateTime)}
                   </div>
                 </td>
@@ -68,37 +68,37 @@ export function OrderTable({ orders, emptyMessage = "No hay órdenes registradas
                 </td>
 
                 <td className="py-4 px-4">
-                  <span className="font-mono bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-xs font-medium text-zinc-900 dark:text-zinc-100">{order.truck.plate}</span>
-                  <div className="text-[11px] text-zinc-500 mt-0.5">
+                  <span className="font-mono bg-elevated px-1.5 py-0.5 rounded text-xs font-medium text-foreground">{order.truck.plate}</span>
+                  <div className="text-xs text-muted mt-0.5">
                     {order.driver.name} {order.driver.lastName}
                   </div>
                 </td>
 
                 <td className="py-4 px-4">
-                  <div className="font-medium text-zinc-900 dark:text-zinc-100 truncate max-w-[160px]">{order.customer.companyName}</div>
-                  <div className="text-[11px] text-zinc-400 truncate max-w-[160px]">{order.product.name}</div>
+                  <div className="font-medium text-foreground truncate max-w-[160px]">{order.customer.companyName}</div>
+                  <div className="text-xs text-muted truncate max-w-[160px]">{order.product.name}</div>
                 </td>
 
                 <td className="py-4 px-4 text-right">
-                  <div className="font-semibold text-zinc-900 dark:text-zinc-100 whitespace-nowrap">
+                  <div className="font-semibold text-foreground whitespace-nowrap">
                     {formatKg(order.lastAccumulatedMass)} / {formatKg(order.preset)}
                   </div>
                   <div className="w-32 ml-auto mt-1">
-                    <div className="h-1.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-600 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                    <div className="h-1.5 w-full bg-elevated rounded-full overflow-hidden">
+                      <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${progress}%` }} />
                     </div>
                   </div>
                 </td>
 
                 <td className="py-4 px-4 text-center">
                   {hasReadings ? (
-                    <div className="inline-flex flex-col items-start gap-0.5 text-[11px] font-mono bg-zinc-50 dark:bg-zinc-800/60 px-2 py-1 rounded-lg border border-zinc-200/60 dark:border-zinc-700/50">
-                      <span title="Temperatura" className="text-amber-600 dark:text-amber-400 font-medium">{formatTemperature(order.lastTemperature)}</span>
-                      <span title="Densidad" className="text-zinc-600 dark:text-zinc-300">{formatDensity(order.lastDensity)}</span>
-                      <span title="Caudal" className="text-blue-600 dark:text-blue-400">{formatFlowRate(order.lastFlowRate)}</span>
+                    <div className="inline-flex flex-col items-start gap-0.5 text-xs font-mono bg-canvas px-2 py-1 rounded-lg border border-line/60">
+                      <span title="Temperatura" className="text-warning font-medium">{formatTemperature(order.lastTemperature)}</span>
+                      <span title="Densidad" className="text-muted">{formatDensity(order.lastDensity)}</span>
+                      <span title="Caudal" className="text-accent">{formatFlowRate(order.lastFlowRate)}</span>
                     </div>
                   ) : (
-                    <span className="text-zinc-400 text-xs">Sin lecturas</span>
+                    <span className="text-muted text-xs">Sin lecturas</span>
                   )}
                 </td>
 
@@ -112,13 +112,13 @@ export function OrderTable({ orders, emptyMessage = "No hay órdenes registradas
                   <div className="flex items-center justify-end gap-1.5">
                     <Link href={`/orders/${order.orderNumber}`}>
                       <Button variant="outline" size="sm" className="h-8 px-2.5">
-                        <Eye className="h-3.5 w-3.5 text-zinc-500 mr-1" />
+                        <Eye className="h-3.5 w-3.5 text-muted mr-1" />
                         Detalle
                       </Button>
                     </Link>
                     {order.status === 4 && (
                       <Link href={`/orders/${order.orderNumber}/reconciliation`}>
-                        <Button variant="secondary" size="sm" className="h-8 px-2.5 bg-violet-600 hover:bg-violet-700 text-white">
+                        <Button variant="secondary" size="sm" className="h-8 px-2.5 ">
                           <FileCheck className="h-3.5 w-3.5 mr-1" />
                           Conciliación
                         </Button>

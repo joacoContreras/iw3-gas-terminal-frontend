@@ -1,26 +1,99 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+  --background: #001827;
+  --foreground: #f4f8fb;
+  --shell: #002b3b;
+  --panel: #073747;
+  --elevated: #0d4656;
+  --accent: #00d6d2;
+  --accent-bright: #65f5e6;
+  --cyan: #00b8d9;
+  --muted: #abc3ce;
+  --line: #285362;
+  --control-line: #527989;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #fb7185;
+  --danger-ink: #ffb4bf;
+  --inactive: #94a3b8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-canvas: var(--background);
+  --color-shell: var(--shell);
+  --color-panel: var(--panel);
+  --color-elevated: var(--elevated);
+  --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
+  --color-cyan: var(--cyan);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-control-line: var(--control-line);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-danger-ink: var(--danger-ink);
+  --color-inactive: var(--inactive);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@layer base {
+  body { background: var(--background); color: var(--foreground); font-family: var(--font-geist-sans), sans-serif; }
+  ::selection { background: var(--accent); color: var(--background); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  button:not(:disabled), summary { cursor: pointer; }
+  input, select, textarea { accent-color: var(--accent); }
+  input[type="number"], input[type="datetime-local"], table, progress, .font-mono { font-variant-numeric: tabular-nums; }
+  input::placeholder, textarea::placeholder { color: var(--muted); opacity: .8; }
+  input:autofill { box-shadow: 0 0 0 1000px var(--shell) inset; -webkit-text-fill-color: var(--foreground); }
+  textarea { background: var(--shell); color: var(--foreground); border-color: var(--control-line); }
+  table { border-collapse: collapse; }
+  thead { position: sticky; top: 0; z-index: 1; background: var(--shell); }
+  th { white-space: nowrap; }
+  td { vertical-align: middle; }
+  progress { appearance: none; border: 0; border-radius: 999px; overflow: hidden; background: var(--elevated); }
+  progress::-webkit-progress-bar { background: var(--elevated); border-radius: 999px; }
+  progress::-webkit-progress-value { background: linear-gradient(90deg, var(--accent), var(--accent-bright)); border-radius: 999px; }
+  progress::-moz-progress-bar { background: linear-gradient(90deg, var(--accent), var(--accent-bright)); border-radius: 999px; }
+  dialog { color: var(--foreground); }
+  dialog::backdrop { background: rgb(0 12 22 / 80%); backdrop-filter: blur(6px); }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .page-title { font-size: clamp(1.5rem, 2.4vw, 2rem); font-weight: 650; letter-spacing: -.035em; line-height: 1.2; overflow-wrap: anywhere; }
+  .eyebrow { font-size: .75rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .control-input { min-height: 2.75rem; width: 100%; border: 1px solid var(--control-line); border-radius: .5rem; background: var(--shell); padding: .625rem .875rem; color: var(--foreground); font-size: .875rem; transition: border-color 180ms, box-shadow 180ms; }
+  .control-input:focus { outline: 2px solid var(--accent); outline-offset: 2px; border-color: var(--accent); }
+  .control-input:disabled { opacity: .5; cursor: not-allowed; }
+  .control-input[aria-invalid="true"] { border-color: var(--danger); }
+  .brand-grid { background-image: linear-gradient(rgb(40 83 98 / 18%) 1px, transparent 1px), linear-gradient(90deg, rgb(40 83 98 / 18%) 1px, transparent 1px); background-size: 56px 56px; }
+  .aether-table { max-height: 70vh; overflow: auto; border: 1px solid var(--line); border-radius: .875rem; background: var(--panel); }
+  .aether-table table { min-width: 100%; }
+  .aether-table tbody tr { transition: background 180ms; }
+  .aether-table tbody tr:hover { background: var(--elevated); }
+  .aether-table td { font-variant-numeric: tabular-nums; }
+  .aether-table th { background: var(--shell); }
+  .metric-value { font-size: clamp(1.5rem, 2.4vw, 2rem); font-weight: 600; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .reconciliation-paper { color-scheme: light; }
+  .reconciliation-paper thead { background: #f4f8fb; }
+  .reconciliation-paper :focus-visible { outline-color: #075e70; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+@media print {
+  :root { color-scheme: light; }
+  body { background: white; color: #102a38; }
+  [data-app-sidebar], [data-app-header], [data-alarm-banner], .skip-link { display: none !important; }
+  [data-app-shell], [data-page-content] { display: block !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: none !important; }
+  .reconciliation-paper { border: 0 !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
+  .reconciliation-paper tr { break-inside: avoid; }
 }

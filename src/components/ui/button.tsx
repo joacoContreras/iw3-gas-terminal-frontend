@@ -21,25 +21,18 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const baseStyles =
-      "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none cursor-pointer";
-
+    const baseStyles = "relative inline-flex shrink-0 items-center justify-center rounded-lg border font-semibold transition-colors duration-180 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent disabled:opacity-45 disabled:pointer-events-none active:translate-y-px cursor-pointer";
     const variantStyles = {
-      primary:
-        "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm",
-      secondary:
-        "bg-zinc-800 text-white hover:bg-zinc-900 focus:ring-zinc-600 shadow-sm",
-      outline:
-        "border border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50 focus:ring-zinc-400 dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800",
-      danger:
-        "bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500 shadow-sm",
-      ghost:
-        "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 focus:ring-zinc-400 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100",
+      primary: "border-accent bg-accent text-canvas hover:border-accent-bright hover:bg-accent-bright shadow-sm",
+      secondary: "border-line bg-elevated text-foreground hover:border-control-line shadow-sm",
+      outline: "border-control-line bg-transparent text-foreground hover:bg-elevated hover:border-accent/50",
+      danger: "border-danger bg-danger text-canvas hover:bg-danger/85 shadow-sm",
+      ghost: "border-transparent text-muted hover:bg-elevated hover:text-foreground",
     };
 
     const sizeStyles = {
-      sm: "h-8 px-3 text-xs gap-1.5",
-      md: "h-10 px-4 text-sm gap-2",
+      sm: "min-h-9 px-3 py-2 text-xs gap-1.5",
+      md: "min-h-11 px-4 py-2.5 text-sm gap-2",
       lg: "h-12 px-6 text-base gap-2.5",
     };
 
@@ -47,12 +40,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         disabled={disabled || isLoading}
+        aria-busy={isLoading || undefined}
         className={cn(baseStyles, variantStyles[variant], sizeStyles[size], className)}
         {...props}
       >
         {isLoading && (
           <svg
-            className="animate-spin -ml-1 mr-2 h-4 w-4 text-current"
+            aria-hidden="true"
+            className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 animate-spin text-current"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -71,7 +66,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             />
           </svg>
         )}
-        {children}
+        <span className={cn("inline-flex items-center justify-center gap-2", isLoading && "opacity-0")}>{children}</span>
       </button>
     );
   }

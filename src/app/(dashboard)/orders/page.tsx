@@ -45,16 +45,16 @@ export default function OrdersListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-zinc-200/80 dark:border-zinc-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-line/80">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">Administración de Órdenes de Carga</h1>
-          <p className="text-xs text-zinc-500 mt-1">
+          <h1 className="page-title font-bold tracking-tight text-foreground">Administración de Órdenes de Carga</h1>
+          <p className="text-xs text-muted mt-1">
             Estados: 1 Pendiente de pesaje inicial · 2 Con pesaje inicial (en carga) · 3 Cerrada para carga · 4 Finalizada. Se actualiza solo.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={refetch} isLoading={isLoading} className="gap-1.5">
-            <RefreshCw className="h-4 w-4 text-zinc-500" />
+            <RefreshCw className="h-4 w-4 text-muted" />
             Actualizar
           </Button>
           <PermissionGate permission="simulator:use">
@@ -71,15 +71,15 @@ export default function OrdersListPage() {
       <OrderFilters status={status} onStatusChange={changeStatus} sort={sort} onSortChange={changeSort} />
 
       {error && (
-        <div role="alert" className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300">
+        <div role="alert" className="flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-xs font-medium text-danger-ink">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           {error}
-          {data && <span className="text-rose-500/80"> (se muestra la última información recibida)</span>}
+          {data && <span className="text-danger-ink"> (se muestra la última información recibida)</span>}
         </div>
       )}
 
       {isLoading && !data ? (
-        <div role="status" className="flex items-center justify-center gap-2 p-16 text-sm text-zinc-500">
+        <div role="status" className="flex items-center justify-center gap-2 p-16 text-sm text-muted">
           <RefreshCw className="h-4 w-4 animate-spin" /> Cargando órdenes…
         </div>
       ) : (

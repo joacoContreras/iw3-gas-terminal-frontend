@@ -30,7 +30,7 @@ export function CloseOrderButton({ orderNumber, status, onClosed }: { orderNumbe
         Cerrar orden para carga
       </Button>
       {closeError && !open && (
-        <p role="alert" className="basis-full text-xs font-medium text-rose-600" data-testid="close-error">{closeError}</p>
+        <p role="alert" className="basis-full text-xs font-medium text-danger-ink" data-testid="close-error">{closeError}</p>
       )}
       <Modal
         isOpen={open}

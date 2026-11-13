@@ -14,7 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "IW3 - Terminal de Carga de Gas Líquido",
+  title: "AetherLoad · Control de carga de gas",
+  applicationName: "AetherLoad",
+  icons: { icon: "/brand/aetherload-logo.png", apple: "/brand/aetherload-logo.png" },
   description: "Sistema integral de administración, monitoreo en tiempo real y conciliación de órdenes de carga de gas líquido",
 };
 
@@ -28,7 +30,7 @@ export default function RootLayout({
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans">
+      <body className="min-h-full bg-canvas text-foreground font-sans">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

@@ -10,7 +10,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 export function Pagination({ info, shown, onPageChange }: { info: PageInfo; shown: number; onPageChange: (page: number) => void }) {
   if (info.totalElements === 0) return null;
   return (
-    <div className="flex items-center justify-between gap-3 text-xs text-zinc-500" data-testid="pagination">
+    <div className="flex items-center justify-between gap-3 text-xs text-muted" data-testid="pagination">
       <span>{pageRangeLabel(info, shown)}</span>
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" disabled={!hasPreviousPage(info)} onClick={() => onPageChange(info.number - 1)} aria-label="Página anterior">

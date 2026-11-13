@@ -1,0 +1,211 @@
+# AetherLoad — Guía de identidad visual e interfaz
+
+Versión: 1.0 · Fecha: 13/11/2026 · Estado: aplicada al frontend.
+Alcance: acceso, navegación, dashboard, órdenes, monitoreo, alarmas,
+integraciones y conciliación. Esta guía define presentación e interacción;
+los permisos, estados y datos siguen determinados por el backend.
+
+## 1. Identidad y principios
+
+AetherLoad administra órdenes de carga de gas líquido e integra SAP, TMS y
+el sistema de carga. Su identidad transmite control operativo, claridad y
+continuidad: superficies azul petróleo, acciones turquesa y ondas discretas.
+
+Prioridades, en orden:
+1. Leer el estado de una orden y sus medidas sin ambigüedad.
+2. Distinguir la acción principal, sus permisos y su resultado.
+3. Mantener jerarquía y contraste en todos los tamaños de pantalla.
+4. Usar la identidad como soporte de la operación, sin decoración continua.
+
+La interfaz utiliza un tema oscuro estable, independiente del tema del
+sistema operativo. La excepción es el remito: fondo claro y tinta oscura,
+tanto en pantalla como al imprimir.
+
+## 2. Logo y nombre
+
+Nombre visible: AetherLoad. El nombre técnico del repositorio no cambia.
+
+Original: res/Logo tecnológico AetherLoad con ondas fluidas.png
+Recurso público: public/brand/aetherload-logo.png
+URL de interfaz: /brand/aetherload-logo.png
+
+- Usar el original completo, sin deformar, recortar, recolorear ni redibujar.
+- Conservar relación 1:1 y reservar dimensiones para evitar saltos al cargar.
+- En acceso de escritorio, usarlo como pieza de marca de 288–380 px.
+- En navegación, acompañar la reproducción compacta con el nombre en texto.
+- En móvil, mantener la identificación de AetherLoad y el acceso al menú.
+- Incluirlo en el remito y en el icono de la pestaña del navegador.
+- Una imagen junto al nombre lleva alt vacío para no duplicar su lectura.
+  Si aparece sola como identificación, su texto alternativo es «AetherLoad».
+- El punto turquesa junto al nombre es un detalle de identidad; no informa
+  disponibilidad, conexión ni estado de la API.
+
+Implementación: components/shared/brand.tsx y next/image. La reproducción
+original conserva el fondo incluido en el archivo.
+
+## 3. Paleta y tokens
+
+La fuente de valores es src/app/globals.css. Los componentes consumen los
+tokens de Tailwind declarados mediante @theme inline. No usar códigos hex
+ni colores de familias arbitrarias dentro de las pantallas operativas.
+
+| Token / utilidad | Valor | Uso |
+|---|---|---|
+| canvas | #001827 | Fondo general y texto sobre botones de acento |
+| shell | #002B3B | Barra lateral, campos y cabeceras de tabla |
+| panel | #073747 | Tarjetas, tablas y diálogos |
+| elevated | #0D4656 | Hover y superficies de segundo nivel |
+| accent | #00D6D2 | Acción principal, selección, foco y progreso |
+| accent-bright | #65F5E6 | Hover principal y extremo del progreso |
+| cyan | #00B8D9 | Acento secundario de información |
+| foreground | #F4F8FB | Texto principal |
+| muted | #ABC3CE | Texto secundario, etiquetas y metadatos |
+| line | #285362 | Divisiones y bordes de superficies |
+| control-line | #527989 | Bordes de campos y controles interactivos |
+| success | #34D399 | Completado o resultado correcto |
+| warning | #FBBF24 | Pendiente o requiere atención |
+| danger | #FB7185 | Fondo de acción de error y alarma pendiente |
+| danger-ink | #FFB4BF | Texto de error sobre paneles y fondos de alerta |
+| inactive | #94A3B8 | Cerrado o inactivo |
+
+Ejemplos: bg-panel, text-muted, border-line, text-danger-ink, bg-danger/10.
+Los estados usan fondo tenue y borde de su familia (por ejemplo,
+bg-danger/10 + border-danger/30 + text-danger-ink). El texto de botones con
+fondo accent o danger es canvas; el blanco no ofrece contraste suficiente.
+
+danger-ink es una variante clara de lectura: evita perder contraste cuando
+una etiqueta de alarma se superpone a una fila ya teñida de rojo. El color
+base danger conserva el valor de la identidad original.
+
+El degradado accent → accent-bright se reserva para progreso y detalles
+de identidad. Tarjetas y tablas mantienen fondos planos. Las ondas y la
+retícula se usan en el acceso, con contraste bajo y sin movimiento continuo.
+
+## 4. Tipografía y medidas
+
+Fuente principal: Geist Sans, ya disponible con next/font. Es la concreción
+de la familia sans serif limpia sugerida en el documento inicial; no se
+agrega otra dependencia tipográfica. Geist Mono se reserva para medidas,
+fechas, identificadores y tiempos. No aplicar Arial encima de la fuente.
+
+| Elemento | Tamaño | Peso / tratamiento |
+|---|---|---|
+| Título de pantalla | 28–32 px en escritorio; 24 px en móvil | 600–650 |
+| Título de sección | 20–24 px | 600 |
+| Texto, tablas y controles | 14–16 px | 400–500 |
+| Etiquetas y metadatos | 12–13 px | 400–600 |
+| Indicadores principales | 28–36 px; desde 24 px en móvil | 600 |
+
+Usar números tabulares y unidades explícitas: kg, L, °C, kg/h y porcentaje.
+Distinguir un cero real de «Sin datos», «Pendiente» o el marcador «—».
+No usar color por sí solo para comunicar estado o acción.
+
+Escala de espacio: 4, 8, 12, 16, 24 y 32 px. Paneles con radios de 12–16 px;
+campos y botones con 8 px. Bordes finos y sombras de baja intensidad.
+
+## 5. Composición y navegación
+
+- Escritorio: barra lateral de 240 px, fija al desplazarse; encabezado de
+  80 px con sección, alarmas, usuario, rol y cierre de sesión.
+- Contenido con márgenes de 24–32 px y ancho limitado; en móvil, 16 px.
+- Orden habitual: título y contexto → acción principal → indicadores →
+  filtros → tabla o formulario.
+- Enlaces activos con fondo accent/10, texto turquesa, borde e indicador
+  lateral. Mantener aria-current="page".
+- Mostrar únicamente módulos permitidos por el rol; ocultar un enlace no
+  reemplaza la autorización del backend.
+- Bajo 768 px, sustituir la barra lateral por un diálogo de navegación.
+  El botón informa si está abierto; Escape lo cierra y el foco vuelve al
+  control inicial. Al pasar a escritorio, cerrar el menú móvil.
+- Incluir «Saltar al contenido» para navegación por teclado.
+- No inventar indicadores de API conectada cuando no existen datos que
+  permitan afirmarlo. El estado de sincronización es distinto del estado
+  de la orden y del estado del correo.
+
+## 6. Componentes y estados interactivos
+
+Botones (components/ui/button.tsx):
+- primary: fondo accent y texto canvas; hover accent-bright.
+- secondary: fondo elevated, borde y texto claro.
+- outline: fondo transparente y borde perceptible.
+- ghost: acción terciaria, sin fondo permanente.
+- danger: fondo danger y texto canvas; etiqueta explícita de la acción.
+- Foco turquesa visible, transición de 180 ms y estado presionado discreto.
+- Al cargar, conservar ancho, nombre accesible y contenido; mostrar spinner
+  superpuesto, bloquear el envío e informar aria-busy.
+
+Campos (Input, Select y clase control-input):
+- Etiqueta visible y asociada al control; placeholder solo como ejemplo.
+- Fondo shell, borde control-line y texto foreground.
+- Altura mínima de 44 px; selectores y campos nativos comparten el estilo.
+- Foco con borde y contorno turquesa. Error con texto danger-ink, aria-invalid
+  y vínculo aria-describedby cuando corresponde.
+- Agrupar por propósito: orden, transporte, programación, cliente/producto.
+- No ocultar errores reales ni cambiar los mensajes del backend por éxito.
+
+Tarjetas y diálogos:
+- Fondo panel, borde line, títulos legibles y espacio consistente.
+- Los diálogos usan el elemento nativo dialog: contienen el foco, permiten
+  Escape y restauran el foco al control que los abrió.
+- El cierre y las acciones destructivas conservan la confirmación existente.
+
+## 7. Tablas, filtros y monitoreo
+
+- Datos textuales a la izquierda; cantidades comparables a la derecha.
+- Encabezado shell, texto secundario y separadores horizontales line.
+- Hover elevated. Estado mediante etiqueta con texto e icono.
+- Tabla dentro de aether-table, con desplazamiento y altura máxima de 70vh.
+  El encabezado permanece visible dentro del área desplazable.
+- En móvil, el desbordamiento queda dentro de la tabla; la página completa
+  no debe desplazarse horizontalmente.
+- Filtros encima de la tabla, selección visible y acción «Limpiar filtros»
+  cuando hay estado u ordenamiento aplicado. Mantener paginación de servidor.
+- No agregar búsqueda sobre una página local si el backend no la ofrece.
+- El progreso usa una barra con valor accesible y límites de 0 a 100.
+- Mostrar última lectura y datos ausentes; evitar afirmar «bomba activa»
+  basándose únicamente en un estado o una lectura histórica.
+
+## 8. Estados semánticos
+
+| Estado de orden | Tratamiento |
+|---|---|
+| 1 · Pendiente de pesaje inicial | warning, reloj y texto oficial |
+| 2 · Con pesaje inicial registrado | accent, actividad y texto oficial |
+| 3 · Cerrada para carga | inactive, candado y texto oficial |
+| 4 · Finalizada | success, confirmación y texto oficial |
+
+- Una alarma pendiente usa danger; una alarma aceptada, success.
+- «Correo no enviado» no equivale a «alarma inexistente». Conservar la
+  información de emailSentAt y la auditoría del usuario que la aceptó.
+- Un error de red conserva el último dato recibido con su aviso.
+- Carga, vacío, error y falta de permisos conservan mensajes identificables.
+- La temperatura puede medirse sin que exista una alarma: la condición
+  real la determina el backend con el umbral vigente.
+
+## 9. Conciliación e impresión
+
+La pantalla operativa sigue el tema oscuro. El comprobante, identificado
+como reconciliation-paper, utiliza fondo blanco y texto oscuro, incorpora
+la marca y conserva todos los pesajes y promedios.
+
+Al imprimir se ocultan navegación, banner, acciones y resúmenes de pantalla.
+Se elimina el fondo oscuro, se aprovecha el ancho del papel y se evita
+cortar las filas. No imprimir el PIN, usuario de sesión ni controles.
+
+## 10. Accesibilidad, movimiento y aceptación
+
+- Objetivo de contraste de texto: 4,5:1; texto grande: 3:1. Campos y foco
+  con bordes perceptibles. Verificar también fondos tenues y hover.
+- Permitir teclado, etiquetas accesibles y foco visible en cada control.
+- No usar pulsos, saltos ni parpadeos continuos para alarmas estáticas.
+  Reservar el movimiento continuo al spinner de una operación en curso.
+- Respetar prefers-reduced-motion y evitar saltos por carga de imágenes.
+- Verificar acceso, dashboard, lista, detalle, conciliación, alarmas y
+  simulador en escritorio y móvil, con datos reales y errores de la API.
+- Validar que la preferencia clara del sistema no cambie el tema de marca.
+- Comprobar menú móvil, diálogos, logo, filtro activo y remito imprimible.
+- Ejecutar lint, pruebas existentes y compilación antes de entregar cambios.
+
+La guía es la referencia de presentación. Los resultados efectivamente
+medidos y las limitaciones de esta aplicación se registran por separado
+en docs/estilos-aetherload.md.

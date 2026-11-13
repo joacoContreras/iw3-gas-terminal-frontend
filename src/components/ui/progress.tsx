@@ -9,7 +9,7 @@ export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Progress({
   value,
-  indicatorColor = "bg-blue-600",
+  indicatorColor = "bg-linear-to-r from-accent to-accent-bright",
   showLabel = false,
   className,
   ...props
@@ -18,7 +18,7 @@ export function Progress({
 
   return (
     <div className={cn("w-full space-y-1", className)} {...props}>
-      <div className="h-3 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800 p-0.5 border border-zinc-200 dark:border-zinc-700/60">
+      <div role="progressbar" aria-label="Progreso" aria-valuenow={clampedValue} aria-valuemin={0} aria-valuemax={100} className="h-3 w-full overflow-hidden rounded-full bg-elevated p-0.5 border border-line">
         <div
           className={cn(
             "h-full rounded-full transition-all duration-500 ease-out",
@@ -28,7 +28,7 @@ export function Progress({
         />
       </div>
       {showLabel && (
-        <div className="flex justify-between text-xs font-medium text-zinc-500 dark:text-zinc-400">
+        <div className="flex justify-between text-xs font-medium text-muted">
           <span>Progreso</span>
           <span>{clampedValue.toFixed(1)}%</span>
         </div>
