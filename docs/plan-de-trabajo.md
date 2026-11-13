@@ -250,6 +250,8 @@ un rol no autorizado no ve el botón de aceptar y, si lo fuerza, recibe un 403 c
 
 ### 4.9 Fase 9 — Simulador de integración real
 
+> **Estado (13/11/2026): implementada y probada** (rama `fase-9-simulador`, sin commit). T1 a T7 hechas. 162 tests, lint sin advertencias y build en verde; **70 verificaciones en Chrome contra Spring Boot y MySQL locales**, con circuito completo, errores 302/400/403, alarma y correo capturado por SMTP local, conciliación y restricción de los cinco roles sin ADMIN. Se eliminaron el mock y los tipos heredados. La entrega del correo a una casilla externa y la prueba en la VM siguen pendientes para el cierre. Informe: `docs/fase-9-simulador.md`.
+
 **Objetivo:** que el simulador recorra el circuito real (Puntos 1 a 5) para la demostración, hablando con los endpoints verdaderos.
 
 | Tarea | Detalle |

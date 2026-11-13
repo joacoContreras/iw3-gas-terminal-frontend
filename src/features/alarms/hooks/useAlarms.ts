@@ -79,7 +79,7 @@ export function useAlarms(options: UseAlarmsOptions = {}) {
           ? Promise.resolve({ content: [], page: { size: 10, number: 0, totalElements: 0, totalPages: 0 } })
           : alarmsApi.getAlarms({ status: "PENDING", page: 0, size: 10 }, signal),
         canViewConfig && loadConfig
-          ? alarmsApi.getAlarmConfig(signal).catch(() => null)
+          ? alarmsApi.getAlarmConfig(signal)
           : Promise.resolve(null),
       ]);
 
