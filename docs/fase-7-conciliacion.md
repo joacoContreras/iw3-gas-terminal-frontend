@@ -1,6 +1,6 @@
 # Fase 7 — Conciliación (consigna 4f)
 
-**Rama:** `fase-7-conciliacion` (desde `main`, `0181d97`) · **Fecha:** 13/11/2026 · **Estado:** implementada y probada  
+**Rama:** `fase-7-conciliacion` (desde `main`, `0181d97`) · **Fecha:** 13/11/2026 · **Estado:** integrada en `main` (PR #7) y desplegada  
 **Objetivo:** que la pantalla de conciliación (`/orders/[orderNumber]/reconciliation`) consuma los datos reales del backend (`GET /orders/{orderNumber}/reconciliation`), combinados con los datos de la orden (`GET /orders/{orderNumber}`) para generar el remito oficial imprimible, calcule de forma segura el porcentaje de desvío y restrinja el acceso a órdenes en estado 4 manejando el error HTTP 409.
 
 ---
@@ -13,21 +13,21 @@
 | **T2 · Métricas y porcentaje derivado** | Se muestran tara, pesaje final, producto cargado, neto por balanza y diferencia directa. En `src/lib/calculations.ts` se implementó `calculateDifferencePercentage(difference, scaleNet)` (`(difference / scaleNet) * 100`) con validación ante `scaleNet <= 0` o valores no finitos. La UI lo rotula explícitamente como cálculo derivado. |
 | **T3 · Acceso exclusivo en estado 4** | El botón de acceso en el detalle de orden solo se muestra si `status === 4`. Si se accede por URL directa a una orden en estado 1, 2 o 3, el backend responde HTTP 409: la UI captura el código, muestra el mensaje oficial del backend, el estado actual de la orden y botones claros para volver al detalle o al listado. |
 | **T4 · Caso de borde: orden sin lecturas** | Si una orden finalizó sin lecturas de caudalímetro (`loadedProduct = 0` y promedios en `null`), la UI no muestra `0 °C` engañoso ni `NaN`: informa «0 kg (sin lecturas)» y «Sin datos» en los promedios de telemetría. |
-| **T5 · Remito imprimible, tests y docs** | [reconciliation-ticket.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/reconciliation/components/reconciliation-ticket.tsx) actualizado con tipado real y estilos aptos para impresión nativa (`window.print()`). 12 tests unitarios añadidos en [calculations.test.mjs](file:///home/joa/repos/iw3-gas-terminal-frontend/src/lib/calculations.test.mjs) (139 tests totales pasando). Este informe y guía de defensa. |
+| **T5 · Remito imprimible, tests y docs** | [reconciliation-ticket.tsx](../src/features/reconciliation/components/reconciliation-ticket.tsx) actualizado con tipado real y estilos aptos para impresión nativa (`window.print()`). 12 tests unitarios añadidos en [calculations.test.mjs](../src/lib/calculations.test.mjs) (139 tests totales pasando). Este informe y guía de defensa. |
 
 ### Archivos tocados
 
 | Archivo | Motivo |
 |---|---|
-| [reconciliationApi.ts](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/reconciliation/services/reconciliationApi.ts) | Cliente HTTP real hacia `GET /orders/{orderNumber}/reconciliation` con tipos de `@/types/api`. Cero mocks. |
-| [useReconciliation.ts](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/reconciliation/hooks/useReconciliation.ts) | Hook que obtiene en paralelo la conciliación y la orden, calcula las métricas derivadas y captura estados de error (403, 404, 409). Se eliminaron los `any`. |
-| [reconciliation-summary.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/reconciliation/components/reconciliation-summary.tsx) | Tarjetas de balanza, caudalímetro y diferencia neta con porcentaje derivado y aviso de tolerancia (±1.0%). |
-| [reconciliation-metrics.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/reconciliation/components/reconciliation-metrics.tsx) | Promedios de telemetría (temperatura, densidad, caudal) que soportan `null` sin mostrar valores falsos. |
-| [reconciliation-ticket.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/reconciliation/components/reconciliation-ticket.tsx) | Remito oficial imprimible con datos reales del transporte, cliente, producto y tabla de conciliación. |
-| [page.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/app/(dashboard)/orders/[orderNumber]/reconciliation/page.tsx) | Pantalla de conciliación bajo Next.js 16 (resolución de `params` con `React.use`), estados de carga, manejo de 409, 403 y 404. |
-| [calculations.ts](file:///home/joa/repos/iw3-gas-terminal-frontend/src/lib/calculations.ts) | Funciones de porcentaje de desvío y tolerancia, protegiendo división por cero. |
-| [calculations.test.mjs](file:///home/joa/repos/iw3-gas-terminal-frontend/src/lib/calculations.test.mjs) | 12 pruebas unitarias de casos normales, casos límite y compatibilidad. |
-| [reconciliation.ts](file:///home/joa/repos/iw3-gas-terminal-frontend/src/types/reconciliation.ts) | Marcado como tipo legacy保留 para `mockStore.ts` hasta la Fase 9. |
+| [reconciliationApi.ts](../src/features/reconciliation/services/reconciliationApi.ts) | Cliente HTTP real hacia `GET /orders/{orderNumber}/reconciliation` con tipos de `@/types/api`. Cero mocks. |
+| [useReconciliation.ts](../src/features/reconciliation/hooks/useReconciliation.ts) | Hook que obtiene en paralelo la conciliación y la orden, calcula las métricas derivadas y captura estados de error (403, 404, 409). Se eliminaron los `any`. |
+| [reconciliation-summary.tsx](../src/features/reconciliation/components/reconciliation-summary.tsx) | Tarjetas de balanza, caudalímetro y diferencia neta con porcentaje derivado y aviso de tolerancia (±1.0%). |
+| [reconciliation-metrics.tsx](../src/features/reconciliation/components/reconciliation-metrics.tsx) | Promedios de telemetría (temperatura, densidad, caudal) que soportan `null` sin mostrar valores falsos. |
+| [reconciliation-ticket.tsx](../src/features/reconciliation/components/reconciliation-ticket.tsx) | Remito oficial imprimible con datos reales del transporte, cliente, producto y tabla de conciliación. |
+| [page.tsx](../src/app/(dashboard)/orders/[orderNumber]/reconciliation/page.tsx) | Pantalla de conciliación bajo Next.js 16 (resolución de `params` con `React.use`), estados de carga, manejo de 409, 403 y 404. |
+| [calculations.ts](../src/lib/calculations.ts) | Funciones de porcentaje de desvío y tolerancia, protegiendo división por cero. |
+| [calculations.test.mjs](../src/lib/calculations.test.mjs) | 12 pruebas unitarias de casos normales, casos límite y compatibilidad. |
+| `types/alarm.ts` | Se mantuvo como tipo heredado hasta la Fase 9, que lo eliminó junto con el mock. |
 
 ---
 

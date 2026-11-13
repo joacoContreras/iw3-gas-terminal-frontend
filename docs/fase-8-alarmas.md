@@ -1,6 +1,6 @@
 # Fase 8 — Alarmas en la UI (consigna 4e)
 
-**Rama:** `fase-8-alarmas` (desde `fase-7-conciliacion`, `af31a38`) · **Fecha:** 13/11/2026 · **Estado:** implementada y probada  
+**Rama:** `fase-8-alarmas` (desde `fase-7-conciliacion`, `af31a38`) · **Fecha:** 13/11/2026 · **Estado:** integrada en `main` (PR #7) y desplegada  
 **Objetivo:** que la supervisión y gestión de alarmas de temperatura por correo (consigna 3 y 4e) operen en tiempo real contra los endpoints del backend (`GET /alarms`, `POST /alarms/{id}/acknowledge`, `GET /alarms/config` y `PUT /alarms/config`), sin mocks, mostrando el banner global, campana con contador, estado de envío de e-mail, auditoría de usuario y configuración segura.
 
 ---
@@ -9,27 +9,27 @@
 
 | Tarea del plan | Resultado |
 |---|---|
-| **T1 · `alarmsApi` real** | [alarmsApi.ts](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/services/alarmsApi.ts): consume los 4 endpoints reales con `apiClient`. Se eliminó completamente `MockStore`. Se implementó `countPending`, paginación (`Page<TemperatureAlarm>`), `acknowledgeAlarm` (enviando solo `{ observation }`, sin username; D-5), `getAlarmConfig` y `updateAlarmConfig`. |
-| **T2 · Banner global y contador** | [alarm-banner.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/components/alarm-banner.tsx) integrado en [dashboard-shell.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/components/shared/dashboard-shell.tsx). Detecta alarmas pendientes en tiempo real mediante *polling* (cada 5 s con `usePolling`), muestra orden y temperaturas, y abre directamente el modal de aceptación. La campana en la barra superior ([navbar.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/components/shared/navbar.tsx)) refleja el conteo de pendientes con badge interactivo. |
-| **T3 · Tabla de alarmas y auditoría** | [alarm-table.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/components/alarm-table.tsx): listado con orden descendente por fecha de disparo, enlace directo a `/orders/{orderNumber}`, badges de estado (`PENDING` vs `ACKNOWLEDGED`), estado de entrega de e-mail (`emailSentAt` con fecha o «Correo no enviado»), y datos de aceptación (usuario responsable, fecha/hora y observación). Paginación integrada con [pagination.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/components/shared/pagination.tsx). |
-| **T4 · Modal de aceptación (D-5)** | [alarm-ack-modal.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/components/alarm-ack-modal.tsx): permite ingresar una observación opcional (máx. 500 caracteres). El usuario responsable no se envía en el cuerpo: el backend lo extrae de los claims del token JWT. La acción está protegida con `PermissionGate permission="alarms:acknowledge"` (solo `ADMIN` y `SUPERVISOR`). |
-| **T5 · Configuración de umbral y correos** | [alarm-config-form.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/components/alarm-config-form.tsx): edición exclusiva para `ADMIN`; `SUPERVISOR` accede en modo solo lectura (`readOnly`). Validación de umbral numérico finito y lista de hasta 20 correos sin duplicados. |
-| **T6 · Validaciones y tests unitarios** | [alarm-validation.ts](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/lib/alarm-validation.ts): módulo puro con 13 pruebas unitarias en [alarm-validation.test.mjs](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/lib/alarm-validation.test.mjs) (152 tests totales pasando). Este informe y guía de defensa. |
+| **T1 · `alarmsApi` real** | [alarmsApi.ts](../src/features/alarms/services/alarmsApi.ts): consume los 4 endpoints reales con `apiClient`. Se eliminó completamente `MockStore`. Se implementó `countPending`, paginación (`Page<TemperatureAlarm>`), `acknowledgeAlarm` (enviando solo `{ observation }`, sin username; D-5), `getAlarmConfig` y `updateAlarmConfig`. |
+| **T2 · Banner global y contador** | [alarm-banner.tsx](../src/features/alarms/components/alarm-banner.tsx) integrado en [dashboard-shell.tsx](../src/components/shared/dashboard-shell.tsx). Detecta alarmas pendientes en tiempo real mediante *polling* (cada 5 s con `usePolling`), muestra orden y temperaturas, y abre directamente el modal de aceptación. La campana en la barra superior ([navbar.tsx](../src/components/shared/navbar.tsx)) refleja el conteo de pendientes con badge interactivo. |
+| **T3 · Tabla de alarmas y auditoría** | [alarm-table.tsx](../src/features/alarms/components/alarm-table.tsx): listado con orden descendente por fecha de disparo, enlace directo a `/orders/{orderNumber}`, badges de estado (`PENDING` vs `ACKNOWLEDGED`), estado de entrega de e-mail (`emailSentAt` con fecha o «Correo no enviado»), y datos de aceptación (usuario responsable, fecha/hora y observación). Paginación integrada con [pagination.tsx](../src/components/shared/pagination.tsx). |
+| **T4 · Modal de aceptación (D-5)** | [alarm-ack-modal.tsx](../src/features/alarms/components/alarm-ack-modal.tsx): permite ingresar una observación opcional (máx. 500 caracteres). El usuario responsable no se envía en el cuerpo: el backend lo extrae de los claims del token JWT. La acción está protegida con `PermissionGate permission="alarms:acknowledge"` (solo `ADMIN` y `SUPERVISOR`). |
+| **T5 · Configuración de umbral y correos** | [alarm-config-form.tsx](../src/features/alarms/components/alarm-config-form.tsx): edición exclusiva para `ADMIN`; `SUPERVISOR` accede en modo solo lectura (`readOnly`). Validación de umbral numérico finito y lista de hasta 20 correos sin duplicados. |
+| **T6 · Validaciones y tests unitarios** | [alarm-validation.ts](../src/features/alarms/lib/alarm-validation.ts): módulo puro con 13 pruebas unitarias en [alarm-validation.test.mjs](../src/features/alarms/lib/alarm-validation.test.mjs) (152 tests totales pasando). Este informe y guía de defensa. |
 
 ### Archivos tocados
 
 | Archivo | Motivo |
 |---|---|
-| [alarmsApi.ts](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/services/alarmsApi.ts) | Cliente HTTP hacia `GET /alarms`, `POST .../acknowledge`, `GET /alarms/config` y `PUT /alarms/config`. Sin mocks. |
-| [useAlarms.ts](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/hooks/useAlarms.ts) | Hook que gestiona polling en tiempo real con `usePolling`, filtros (`ALL`, `PENDING`, `ACKNOWLEDGED`), paginación, recuento de pendientes y llamadas de mutación. |
-| [alarm-banner.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/components/alarm-banner.tsx) | Banner de advertencia roja con animación de entrada y acción directa de aceptación. |
-| [alarm-table.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/components/alarm-table.tsx) | Tabla con datos reales, estado de e-mail (`emailSentAt`), enlace a orden y auditoría. |
-| [alarm-ack-modal.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/components/alarm-ack-modal.tsx) | Modal de aceptación con validación de observación y sin enviar usuario en el JSON (D-5). |
-| [alarm-config-form.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/components/alarm-config-form.tsx) | Formulario con validación de correos, límite de 20 destinatarios, feedback de éxito/error y modo solo lectura. |
-| [alarm-validation.ts](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/lib/alarm-validation.ts) (+test) | Validaciones puras de correos, umbral y longitud de observación. |
-| [dashboard-shell.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/components/shared/dashboard-shell.tsx) | Marco autenticado con tipos de `@/types/api`, banner y modal global. |
-| [page.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/app/(dashboard)/alarms/page.tsx) | Pantalla de alarmas con pestañas (Historial / Configuración), filtros de estado y paginación. |
-| [alarm.ts](file:///home/joa/repos/iw3-gas-terminal-frontend/src/types/alarm.ts) | Marcado como tipo legacy保留 para `mockStore.ts` hasta la Fase 9. |
+| [alarmsApi.ts](../src/features/alarms/services/alarmsApi.ts) | Cliente HTTP hacia `GET /alarms`, `POST .../acknowledge`, `GET /alarms/config` y `PUT /alarms/config`. Sin mocks. |
+| [useAlarms.ts](../src/features/alarms/hooks/useAlarms.ts) | Hook que gestiona polling en tiempo real con `usePolling`, filtros (`ALL`, `PENDING`, `ACKNOWLEDGED`), paginación, recuento de pendientes y llamadas de mutación. |
+| [alarm-banner.tsx](../src/features/alarms/components/alarm-banner.tsx) | Banner de advertencia roja con animación de entrada y acción directa de aceptación. |
+| [alarm-table.tsx](../src/features/alarms/components/alarm-table.tsx) | Tabla con datos reales, estado de e-mail (`emailSentAt`), enlace a orden y auditoría. |
+| [alarm-ack-modal.tsx](../src/features/alarms/components/alarm-ack-modal.tsx) | Modal de aceptación con validación de observación y sin enviar usuario en el JSON (D-5). |
+| [alarm-config-form.tsx](../src/features/alarms/components/alarm-config-form.tsx) | Formulario con validación de correos, límite de 20 destinatarios, feedback de éxito/error y modo solo lectura. |
+| [alarm-validation.ts](../src/features/alarms/lib/alarm-validation.ts) (+test) | Validaciones puras de correos, umbral y longitud de observación. |
+| [dashboard-shell.tsx](../src/components/shared/dashboard-shell.tsx) | Marco autenticado con tipos de `@/types/api`, banner y modal global. |
+| [page.tsx](../src/app/(dashboard)/alarms/page.tsx) | Pantalla de alarmas con pestañas (Historial / Configuración), filtros de estado y paginación. |
+| `types/alarm.ts` | Se mantuvo como tipo heredado hasta la Fase 9, que lo eliminó junto con el mock. |
 
 ---
 
@@ -53,7 +53,7 @@
 1. Un caudalímetro envía una lectura con `temperature > umbral` a `POST /integration/loader/orders/{n}/details`.
 2. El backend crea la alarma en estado `PENDING` y publica el evento para envío de correo asíncrono.
 3. El frontend, a través de `useAlarms` en `DashboardShell`, consulta en segundo plano `GET /alarms?status=PENDING&size=10`.
-4. El banner global [alarm-banner.tsx](file:///home/joa/repos/iw3-gas-terminal-frontend/src/features/alarms/components/alarm-banner.tsx) se activa en todas las pantallas del dashboard mostrando la orden y la temperatura registrada, y la campana de la barra de navegación incrementa el contador.
+4. El banner global [alarm-banner.tsx](../src/features/alarms/components/alarm-banner.tsx) se activa en todas las pantallas del dashboard mostrando la orden y la temperatura registrada, y la campana de la barra de navegación incrementa el contador.
 
 ### Aceptación de la alarma
 1. Un `SUPERVISOR` o `ADMIN` hace clic en «Aceptar Alarma» (desde el banner o desde la tabla de `/alarms`).

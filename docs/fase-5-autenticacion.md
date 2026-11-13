@@ -1,6 +1,6 @@
 # Fase 5 — Autenticación, sesión, rutas protegidas y roles en la UI
 
-**Rama:** `fase-5-autenticacion` (desde `main`, `239aeed`) · **Fecha:** 12/11/2026 · **Estado:** implementada y probada (sin commitear)
+**Rama:** `fase-5-autenticacion` (desde `main`, `239aeed`) · **Fecha:** 12/11/2026 · **Estado:** integrada en `main` (PR #5) y desplegada
 **Objetivo:** que solo entre quien se autentica contra el backend real, que la sesión se comporte bien (vence, se cierra, se restaura) y que cada rol vea solo lo que el backend le permite.
 **Regla 9 (Next 16):** antes de escribir código se leyeron las guías de autenticación y de `useRouter`, `usePathname` y `useSearchParams` de `node_modules/next/dist/docs/`; condicionan C-2 y C-5.
 

@@ -1,6 +1,6 @@
 # Fase 9 — Simulador de integración real
 
-Fecha: 13/11/2026. Rama: `fase-9-simulador`. Alcance: completar el trabajo interrumpido del simulador, conservar las fases anteriores e integrar los Puntos 1 a 5 contra Spring Boot. Sin commits ni despliegue.
+Fecha: 13/11/2026. Rama: `fase-9-simulador`. Alcance: completar el trabajo interrumpido del simulador, conservar las fases anteriores e integrar los Puntos 1 a 5 contra Spring Boot. Integrada en `main` por el PR #7 (13/11/2026) y desplegada.
 
 ## Resultado y decisiones
 
