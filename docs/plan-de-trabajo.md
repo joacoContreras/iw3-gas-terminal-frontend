@@ -268,6 +268,8 @@ un rol no autorizado no ve el botón de aceptar y, si lo fuerza, recibe un 403 c
 
 ### 4.10 Fase 10 — Calidad, despliegue y ensayo de defensa
 
+> **Estado (13/11/2026): implementada y probada en lo que no toca la VM** (rama `fase-10-calidad`). Hechas T1, T2, T6 y T7; de T3 solo el análisis de la configuración. **T4 y T5 (variables y prueba de punta a punta en la VM) quedan pendientes** por decisión del usuario. 181 tests, axe-core sin violaciones, guía de estudio con 28 preguntas. Informe: `docs/fase-10-calidad.md`.
+
 | Tarea | Detalle |
 |---|---|
 | T1 | Revisión transversal: sin `any`, sin advertencias de lint, estados de carga/vacío/error en todas las pantallas, responsive, accesibilidad básica |
