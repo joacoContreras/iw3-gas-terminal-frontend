@@ -3,8 +3,6 @@
  * temperatura de una orden sin lecturas) se muestra como una raya, nunca como un cero que parezca una medición.
  * Las fechas del backend se formatean con `@/lib/dates`.
  */
-import { formatBackendDateTime } from "@/lib/dates";
-
 const PLACEHOLDER = "—";
 
 function isMissing(val: number | null | undefined): val is null | undefined {
@@ -34,9 +32,4 @@ export function formatFlowRate(val?: number | null): string {
 
 export function formatLiters(val?: number | null): string {
   return isMissing(val) ? PLACEHOLDER : `${number(val, { maximumFractionDigits: 0 })} L`;
-}
-
-/** LEGACY: lo usan las pantallas de alarmas y conciliación hasta las Fases 8 y 7. Usar `formatBackendDateTime`. */
-export function formatDateTime(isoDate?: string | null): string {
-  return formatBackendDateTime(isoDate);
 }
