@@ -1,3 +1,8 @@
+/**
+ * LEGACY: tipos heredados contra la API vieja/imaginada.
+ * Solo los utiliza `src/services/mock/mockStore.ts` hasta su eliminación definitiva en la Fase 9 (D-7).
+ * El código de producción de alarmas (Fase 8) utiliza exclusivamente `@/types/api` (`TemperatureAlarm`, `AlarmConfig`, `AlarmAckRequest`).
+ */
 export type AlarmStatus = "PENDING" | "ACKNOWLEDGED";
 
 export interface Alarm {

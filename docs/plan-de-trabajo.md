@@ -234,6 +234,8 @@ el ETA y el tiempo transcurrido coinciden con un cálculo manual; el tiempo tran
 
 ### 4.8 Fase 8 — Alarmas en la UI (consigna 4e)
 
+> **Estado (13/11/2026): implementada y probada** (rama `fase-8-alarmas`). T1 a T6 hechas. 152 tests (13 nuevos de validación), lint con 1 sola advertencia (legacy), build en verde. Consumo real de los 4 endpoints de `/alarms`, banner global, modal de aceptación sin username en payload (D-5), visualización de `emailSentAt` y formulario de configuración con validación estricta. Informe: `docs/fase-8-alarmas.md`.
+
 | Tarea | Detalle |
 |---|---|
 | T1 | `alarmsApi` real: listado, aceptar, configuración |

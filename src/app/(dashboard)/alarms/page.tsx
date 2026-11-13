@@ -5,37 +5,53 @@ import { useAlarms } from "@/features/alarms/hooks/useAlarms";
 import { AlarmTable } from "@/features/alarms/components/alarm-table";
 import { AlarmConfigForm } from "@/features/alarms/components/alarm-config-form";
 import { AlarmAckModal } from "@/features/alarms/components/alarm-ack-modal";
-import { Alarm } from "@/types/alarm";
-import { RefreshCw, SlidersHorizontal, List } from "lucide-react";
+import { Pagination } from "@/components/shared/pagination";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/context/AuthContext";
+import type { AlarmStatus, TemperatureAlarm } from "@/types/api";
+import { RefreshCw, SlidersHorizontal, List, AlertTriangle } from "lucide-react";
 
 export default function AlarmsManagementPage() {
-  const {
-    alarms,
-    pendingCount,
-    config,
-    isLoading,
-    refetch,
-    acknowledge,
-    updateConfig,
-  } = useAlarms();
+  const [activeTab, setActiveTab] = React.useState<"list" | "config">("list");
+  const [statusFilter, setStatusFilter] = React.useState<AlarmStatus | "ALL">("ALL");
+  const [page, setPage] = React.useState(0);
+  const [selectedAlarmForAck, setSelectedAlarmForAck] =
+    React.useState<TemperatureAlarm | null>(null);
 
   const { can } = useAuth();
   const canViewConfig = can("alarms:config:view");
   const canEditConfig = can("alarms:config:edit");
   const canAcknowledge = can("alarms:acknowledge");
 
-  const [selectedAlarmForAck, setSelectedAlarmForAck] =
-    React.useState<Alarm | null>(null);
-  const [activeTab, setActiveTab] = React.useState<"list" | "config">("list");
+  const {
+    alarms,
+    alarmsPage,
+    pendingCount,
+    config,
+    isLoading,
+    isRefreshing,
+    error,
+    refetch,
+    acknowledge,
+    updateConfig,
+  } = useAlarms({
+    status: statusFilter,
+    page,
+    size: 20,
+    loadConfig: canViewConfig,
+  });
+
+  const handleStatusChange = (newStatus: AlarmStatus | "ALL") => {
+    setStatusFilter(newStatus);
+    setPage(0);
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200/80 dark:border-zinc-800">
         <div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">
               Gestión de Alarmas de Temperatura
             </h1>
@@ -53,6 +69,7 @@ export default function AlarmsManagementPage() {
         <div className="flex items-center gap-2">
           <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl">
             <button
+              type="button"
               onClick={() => setActiveTab("list")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === "list"
@@ -61,10 +78,11 @@ export default function AlarmsManagementPage() {
               }`}
             >
               <List className="h-3.5 w-3.5" />
-              Historial ({alarms.length})
+              Historial {alarmsPage ? `(${alarmsPage.page.totalElements})` : ""}
             </button>
             {canViewConfig && (
               <button
+                type="button"
                 onClick={() => setActiveTab("config")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === "config"
@@ -78,21 +96,104 @@ export default function AlarmsManagementPage() {
             )}
           </div>
 
-          <Button variant="outline" size="sm" onClick={() => refetch()} isLoading={isLoading}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            isLoading={isRefreshing}
+            title="Refrescar datos"
+          >
             <RefreshCw className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
 
+      {error && (
+        <div
+          role="alert"
+          className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300"
+        >
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          {error} (se muestra la última información recibida)
+        </div>
+      )}
+
       {/* Tabs */}
       {activeTab === "list" || !canViewConfig ? (
-        <AlarmTable
-          alarms={alarms}
-          onOpenAckModal={(alarm) => setSelectedAlarmForAck(alarm)}
-        />
+        <div className="space-y-4">
+          {/* Filtros de estado */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5 p-1 bg-zinc-100/80 dark:bg-zinc-800/60 rounded-xl text-xs">
+              <button
+                type="button"
+                onClick={() => handleStatusChange("ALL")}
+                className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                  statusFilter === "ALL"
+                    ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs font-semibold"
+                    : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400"
+                }`}
+              >
+                Todas
+              </button>
+              <button
+                type="button"
+                onClick={() => handleStatusChange("PENDING")}
+                className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  statusFilter === "PENDING"
+                    ? "bg-white dark:bg-zinc-900 text-rose-600 dark:text-rose-400 shadow-xs font-semibold"
+                    : "text-zinc-500 hover:text-rose-600 dark:text-zinc-400"
+                }`}
+              >
+                Pendientes
+                {pendingCount > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-rose-600 text-white font-mono">
+                    {pendingCount}
+                  </span>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleStatusChange("ACKNOWLEDGED")}
+                className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                  statusFilter === "ACKNOWLEDGED"
+                    ? "bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-400 shadow-xs font-semibold"
+                    : "text-zinc-500 hover:text-emerald-600 dark:text-zinc-400"
+                }`}
+              >
+                Aceptadas
+              </button>
+            </div>
+          </div>
+
+          {/* Tabla de alarmas */}
+          {isLoading ? (
+            <div role="status" className="flex flex-col items-center justify-center p-16 text-center">
+              <RefreshCw className="h-7 w-7 animate-spin text-blue-600 mb-2" />
+              <span className="text-xs text-zinc-500">Cargando alarmas de temperatura…</span>
+            </div>
+          ) : (
+            <AlarmTable
+              alarms={alarms}
+              onOpenAckModal={(alarm) => setSelectedAlarmForAck(alarm)}
+            />
+          )}
+
+          {/* Paginación */}
+          {alarmsPage && (
+            <Pagination
+              info={alarmsPage.page}
+              shown={alarms.length}
+              onPageChange={setPage}
+            />
+          )}
+        </div>
       ) : (
         <div className="max-w-2xl">
-          <AlarmConfigForm config={config} onSave={updateConfig} readOnly={!canEditConfig} />
+          <AlarmConfigForm
+            config={config}
+            onSave={updateConfig}
+            readOnly={!canEditConfig}
+          />
         </div>
       )}
 

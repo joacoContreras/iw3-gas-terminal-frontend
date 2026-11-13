@@ -7,7 +7,7 @@ import { AlarmBanner } from "@/features/alarms/components/alarm-banner";
 import { AlarmAckModal } from "@/features/alarms/components/alarm-ack-modal";
 import { useAlarms } from "@/features/alarms/hooks/useAlarms";
 import { useAuth } from "@/features/auth/context/AuthContext";
-import { Alarm } from "@/types/alarm";
+import type { TemperatureAlarm } from "@/types/api";
 
 /**
  * Marco de las pantallas autenticadas. Solo se monta con sesión (lo garantiza `AuthGate`), así que lo que dispara
@@ -16,7 +16,7 @@ import { Alarm } from "@/types/alarm";
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const { can } = useAuth();
   const { pendingAlarms, pendingCount, acknowledge } = useAlarms();
-  const [selectedAlarm, setSelectedAlarm] = React.useState<Alarm | null>(null);
+  const [selectedAlarm, setSelectedAlarm] = React.useState<TemperatureAlarm | null>(null);
   const canAcknowledge = can("alarms:acknowledge");
 
   return (

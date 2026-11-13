@@ -2,13 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Alarm } from "@/types/alarm";
+import type { TemperatureAlarm } from "@/types/api";
 import { formatTemperature } from "@/lib/formatters";
 import { AlertOctagon, ArrowRight } from "lucide-react";
 
 interface AlarmBannerProps {
-  pendingAlarms: Alarm[];
-  onOpenAckModal?: (alarm: Alarm) => void;
+  pendingAlarms: TemperatureAlarm[];
+  onOpenAckModal?: (alarm: TemperatureAlarm) => void;
 }
 
 export function AlarmBanner({ pendingAlarms, onOpenAckModal }: AlarmBannerProps) {
@@ -17,28 +17,32 @@ export function AlarmBanner({ pendingAlarms, onOpenAckModal }: AlarmBannerProps)
   const first = pendingAlarms[0];
 
   return (
-    <div className="bg-rose-600 text-white px-4 py-2.5 shadow-md animate-in slide-in-from-top duration-300">
+    <div
+      role="alert"
+      className="bg-rose-600 text-white px-4 py-2.5 shadow-md animate-in slide-in-from-top duration-300"
+    >
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <span className="p-1 bg-white/20 rounded-full animate-bounce">
             <AlertOctagon className="h-4 w-4" />
           </span>
-          <span className="font-semibold">
+          <span className="font-bold tracking-wide">
             ¡ALERTA CRÍTICA DE TEMPERATURA!
           </span>
-          <span className="hidden md:inline text-rose-100">
+          <span className="text-rose-100">
             Orden #{first.orderNumber} registró {formatTemperature(first.temperature)} (Umbral: {formatTemperature(first.threshold)}).
           </span>
           {pendingAlarms.length > 1 && (
-            <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-mono">
+            <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-mono font-semibold">
               +{pendingAlarms.length - 1} más
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {onOpenAckModal && (
             <button
+              type="button"
               onClick={() => onOpenAckModal(first)}
               className="bg-white text-rose-700 font-bold px-3 py-1 rounded-lg text-xs hover:bg-rose-50 transition-colors shadow-xs cursor-pointer"
             >

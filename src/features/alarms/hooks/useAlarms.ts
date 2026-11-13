@@ -1,84 +1,140 @@
 "use client";
 
 import * as React from "react";
-import { Alarm, AlarmConfig } from "@/types/alarm";
 import { alarmsApi } from "../services/alarmsApi";
 import { useAuth } from "@/features/auth/context/AuthContext";
+import { usePolling } from "@/lib/use-polling";
+import type {
+  AlarmConfig,
+  AlarmStatus,
+  AlarmsQuery,
+  Page,
+  TemperatureAlarm,
+} from "@/types/api";
 
-export function useAlarms(pollingIntervalMs: number = 5000) {
-  const [alarms, setAlarms] = React.useState<Alarm[]>([]);
-  const [config, setConfig] = React.useState<AlarmConfig | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+export interface UseAlarmsOptions {
+  /** Filtro de estado: 'ALL' (todas las alarmas), 'PENDING' o 'ACKNOWLEDGED'. */
+  status?: AlarmStatus | "ALL";
+  orderNumber?: number;
+  page?: number;
+  size?: number;
+  /** Intervalo en ms para el refresco en segundo plano (por defecto 5000 ms). */
+  pollingIntervalMs?: number | null;
+  /** Cargar configuración global si el rol lo permite (por defecto true). */
+  loadConfig?: boolean;
+}
 
-  // Solo se piden los datos que el rol puede ver: el backend respondería 403 y el polling lo repetiría cada 5 s.
+interface AlarmsAggregateData {
+  alarmsPage: Page<TemperatureAlarm>;
+  pendingPage: Page<TemperatureAlarm>;
+  config: AlarmConfig | null;
+}
+
+export function useAlarms(options: UseAlarmsOptions = {}) {
+  const {
+    status = "ALL",
+    orderNumber,
+    page = 0,
+    size = 20,
+    pollingIntervalMs = 5000,
+    loadConfig = true,
+  } = options;
+
   const { can } = useAuth();
   const canViewAlarms = can("alarms:view");
   const canViewConfig = can("alarms:config:view");
 
-  const fetchData = React.useCallback(async (silent = false) => {
-    if (!silent) setIsLoading(true);
-    try {
-      const [alarmsData, configData] = await Promise.all([
-        canViewAlarms ? alarmsApi.getAlarms() : Promise.resolve([]),
-        canViewConfig ? alarmsApi.getAlarmConfig() : Promise.resolve(null),
+  const queryStatus: AlarmStatus | undefined =
+    status === "ALL" ? undefined : status;
+
+  const resetKey = `${canViewAlarms ? "view" : "no"}-${status}-${page}-${size}-${orderNumber ?? ""}`;
+
+  const fetcher = React.useCallback(
+    async (signal: AbortSignal): Promise<AlarmsAggregateData> => {
+      if (!canViewAlarms) {
+        return {
+          alarmsPage: {
+            content: [],
+            page: { size, number: 0, totalElements: 0, totalPages: 0 },
+          },
+          pendingPage: {
+            content: [],
+            page: { size: 10, number: 0, totalElements: 0, totalPages: 0 },
+          },
+          config: null,
+        };
+      }
+
+      const query: AlarmsQuery = {
+        status: queryStatus,
+        orderNumber,
+        page,
+        size,
+      };
+
+      const [alarmsPage, pendingPage, config] = await Promise.all([
+        alarmsApi.getAlarms(query, signal),
+        // Consultamos las pendientes para el banner global y la campana de notificación
+        queryStatus === "PENDING" && page === 0
+          ? Promise.resolve({ content: [], page: { size: 10, number: 0, totalElements: 0, totalPages: 0 } })
+          : alarmsApi.getAlarms({ status: "PENDING", page: 0, size: 10 }, signal),
+        canViewConfig && loadConfig
+          ? alarmsApi.getAlarmConfig(signal).catch(() => null)
+          : Promise.resolve(null),
       ]);
-      setAlarms(alarmsData);
-      setConfig(configData);
-      setError(null);
-    } catch (err: any) {
-      setError(err.message || "Error al cargar alarmas");
-    } finally {
-      if (!silent) setIsLoading(false);
-    }
-  }, [canViewAlarms, canViewConfig]);
 
-  React.useEffect(() => {
-    if (!canViewAlarms) {
-      setIsLoading(false);
-      return;
-    }
-    fetchData(false);
-    const interval = setInterval(() => fetchData(true), pollingIntervalMs);
-    return () => clearInterval(interval);
-  }, [fetchData, canViewAlarms, pollingIntervalMs]);
+      return {
+        alarmsPage,
+        pendingPage: queryStatus === "PENDING" && page === 0 ? alarmsPage : pendingPage,
+        config,
+      };
+    },
+    [canViewAlarms, canViewConfig, queryStatus, orderNumber, page, size, loadConfig]
+  );
 
-  const pendingAlarms = alarms.filter((a) => a.status === "PENDING");
+  const polling = usePolling<AlarmsAggregateData>(fetcher, {
+    intervalMs: pollingIntervalMs,
+    resetKey,
+    enabled: canViewAlarms,
+  });
 
-  const acknowledge = async (
-    alarmId: number,
-    username: string,
-    observation?: string
-  ) => {
-    try {
-      const updated = await alarmsApi.acknowledgeAlarm(alarmId, username, observation);
-      setAlarms((prev) =>
-        prev.map((a) => (a.id === alarmId ? updated : a))
-      );
+  const alarmsPage = polling.data?.alarmsPage ?? null;
+  const alarms = alarmsPage?.content ?? [];
+  const pendingPage = polling.data?.pendingPage ?? null;
+  const pendingAlarms = pendingPage?.content ?? [];
+  const pendingCount = pendingPage?.page.totalElements ?? 0;
+  const config = polling.data?.config ?? null;
+
+  const acknowledge = React.useCallback(
+    async (alarmId: number, observation?: string): Promise<TemperatureAlarm> => {
+      const updated = await alarmsApi.acknowledgeAlarm(alarmId, observation);
+      polling.refetch();
       return updated;
-    } catch (err: any) {
-      throw err;
-    }
-  };
+    },
+    [polling]
+  );
 
-  const updateConfig = async (newConfig: Partial<AlarmConfig>) => {
-    try {
+  const updateConfig = React.useCallback(
+    async (newConfig: AlarmConfig): Promise<AlarmConfig> => {
       const updated = await alarmsApi.updateAlarmConfig(newConfig);
-      setConfig(updated);
+      polling.refetch();
       return updated;
-    } catch (err: any) {
-      throw err;
-    }
-  };
+    },
+    [polling]
+  );
 
   return {
     alarms,
+    alarmsPage,
     pendingAlarms,
-    pendingCount: pendingAlarms.length,
+    pendingCount,
     config,
-    isLoading,
-    error,
-    refetch: () => fetchData(false),
+    isLoading: polling.isLoading && !polling.data,
+    isRefreshing: polling.isLoading,
+    error: polling.error,
+    errorStatus: polling.errorStatus,
+    updatedAt: polling.updatedAt,
+    refetch: polling.refetch,
     acknowledge,
     updateConfig,
   };

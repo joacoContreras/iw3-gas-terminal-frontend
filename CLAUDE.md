@@ -48,8 +48,8 @@ otra historia dan conflictos (el PR #17, desde la rama original, tenía 162 comm
 | 4 | Conexión real: cliente HTTP, tipos y errores | frontend | **Completada e integrada en `main` (12/11/2026, PR #4, desplegada)**: 83 tests (también con Node 22), lint y build en verde, tipos contrastados con el JSON del backend vivo y **33 verificaciones con Chrome real**. Informe: `docs/fase-4-conexion.md` |
 | 5 | Autenticación, sesión, rutas protegidas y roles en la UI | frontend | **Completada e integrada en `main` (12/11/2026, PR #5, desplegada)**: 116 tests (33 nuevos; también con Node 22), 5 mutaciones detectadas, lint y build en verde y **95 verificaciones con Chrome real** contra el backend (login, vencimiento, 401, los 6 roles). Informe: `docs/fase-5-autenticacion.md` |
 | 6 | Órdenes: listado, filtros, monitoreo, detalle, ETA y tiempo transcurrido | frontend | **Completada e integrada en `main` (12/11/2026, PR #6, desplegada)**: 127 tests, lint y build en verde, 93 verificaciones con Chrome real. Informe: `docs/fase-6-ordenes.md` |
-| 7 | Conciliación | frontend | **Implementada y probada (13/11/2026, rama `fase-7-conciliacion`)**: 139 tests (12 nuevos), lint y build en verde, tipos reales del backend, remito oficial y manejo de 409. Informe: `docs/fase-7-conciliacion.md` |
-| 8 | Alarmas en la UI | frontend | Pendiente |
+| 7 | Conciliación | frontend | **Completada y probada (13/11/2026, rama `fase-7-conciliacion`)**: 139 tests (12 nuevos), lint y build en verde, tipos reales del backend, remito oficial y manejo de 409. Informe: `docs/fase-7-conciliacion.md` |
+| 8 | Alarmas en la UI | frontend | **Implementada y probada (13/11/2026, rama `fase-8-alarmas`)**: 152 tests (13 nuevos de validación), lint con 1 sola advertencia (legacy), build en verde, banner global, campana, aceptación segura sin username en body (D-5), e-mail status y configuración |
 | 9 | Simulador de integración real | frontend | Pendiente |
 | 10 | Calidad, despliegue y ensayo de defensa | ambos | Pendiente |
 
