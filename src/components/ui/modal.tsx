@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
@@ -11,62 +13,31 @@ export interface ModalProps {
   className?: string;
 }
 
-export function Modal({
-  isOpen,
-  onClose,
-  title,
-  description,
-  children,
-  className,
-}: ModalProps) {
+/** El diálogo nativo retiene el foco, permite Escape y lo devuelve al control que lo abrió. */
+export function Modal({ isOpen, onClose, title, description, children, className }: ModalProps) {
+  const dialog = React.useRef<HTMLDialogElement>(null);
+  const titleId = React.useId();
+  const descriptionId = React.useId();
   React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose]);
+    if (isOpen) dialog.current?.showModal();
+    else dialog.current?.close();
+    const previous = document.body.style.overflow;
+    if (isOpen) document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [isOpen]);
 
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-      <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in"
-        onClick={onClose}
-      />
-      <div
-        className={cn(
-          "relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 z-10 animate-in zoom-in-95",
-          className
-        )}
-      >
-        <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
-          <div>
-            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-              {title}
-            </h3>
-            {description && (
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                {description}
-              </p>
-            )}
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        <div className="mt-4">{children}</div>
-      </div>
+  return <dialog ref={dialog} aria-labelledby={titleId} aria-describedby={description ? descriptionId : undefined}
+    onCancel={(e) => { e.preventDefault(); onClose(); }}
+    onClick={(e) => {
+      if (e.target !== e.currentTarget) return;
+      const box = e.currentTarget.getBoundingClientRect();
+      if (e.clientX < box.left || e.clientX > box.right || e.clientY < box.top || e.clientY > box.bottom) onClose();
+    }}
+    className={cn("fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl border border-line bg-panel p-6 text-foreground shadow-2xl", className)}>
+    <div className="flex items-start justify-between gap-4 border-b border-line pb-4">
+      <div><h2 id={titleId} className="text-xl font-semibold tracking-tight">{title}</h2>{description && <p id={descriptionId} className="mt-2 text-sm text-muted">{description}</p>}</div>
+      <button type="button" onClick={onClose} aria-label="Cerrar diálogo" className="rounded-lg p-2 text-muted transition-colors hover:bg-elevated hover:text-foreground"><X className="h-5 w-5" /></button>
     </div>
-  );
+    <div className="mt-5">{isOpen ? children : null}</div>
+  </dialog>;
 }

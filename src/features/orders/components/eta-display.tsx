@@ -21,28 +21,28 @@ export function EtaDisplay({ order }: { order: Order }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <Card className="bg-gradient-to-br from-white to-blue-50/40 dark:from-zinc-900 dark:to-blue-950/20 border-blue-200/60 dark:border-blue-900/40">
+      <Card className="border-accent/30">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
-            <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <CardTitle className="text-xs font-semibold uppercase tracking-wider text-accent flex items-center gap-1.5">
+            <Clock className="h-4 w-4 text-accent" />
             Tiempo estimado de llenado (ETA)
           </CardTitle>
           {eta.kind === "complete" && (
-            <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+            <span className="flex items-center gap-1 text-xs font-semibold text-success">
               <CheckCircle className="h-3.5 w-3.5" /> Completada
             </span>
           )}
           {eta.kind === "stalled" && (
-            <span className="flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
+            <span className="flex items-center gap-1 text-xs font-semibold text-warning">
               <PauseCircle className="h-3.5 w-3.5" /> Sin caudal
             </span>
           )}
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold font-mono text-zinc-900 dark:text-zinc-50" data-testid="eta-value">
+          <div className="text-3xl font-bold font-mono text-foreground" data-testid="eta-value">
             {etaLabel(eta)}
           </div>
-          <div className="flex items-center justify-between text-xs text-zinc-500 mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+          <div className="flex items-center justify-between text-xs text-muted mt-2 pt-2 border-t border-line">
             {eta.kind === "not-loading" ? (
               <span>La estimación solo existe con la carga en curso (estado 2).</span>
             ) : (
@@ -55,24 +55,24 @@ export function EtaDisplay({ order }: { order: Order }) {
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-zinc-800/40">
+      <Card className="">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
-            <Timer className="h-4 w-4 text-zinc-500" />
+          <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted flex items-center gap-1.5">
+            <Timer className="h-4 w-4 text-muted" />
             Tiempo transcurrido de carga
           </CardTitle>
           {isLoading && elapsed !== null && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-success bg-success/10 px-2 py-0.5 rounded-full">
+              <span className="h-1.5 w-1.5 rounded-full bg-success " />
               En vivo
             </span>
           )}
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold font-mono tracking-wider text-zinc-900 dark:text-zinc-50" data-testid="elapsed-value">
+          <div className="text-3xl font-bold font-mono tracking-wider text-foreground" data-testid="elapsed-value">
             {elapsed === null ? "—" : formatDuration(elapsed)}
           </div>
-          <p className="text-xs text-zinc-400 mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+          <p className="text-xs text-muted mt-2 pt-2 border-t border-line">
             {!isLoading
               ? "El tiempo transcurrido solo corre con la carga en curso (estado 2)."
               : order.loadingStartDateTime

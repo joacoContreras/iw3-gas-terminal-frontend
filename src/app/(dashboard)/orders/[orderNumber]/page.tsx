@@ -20,9 +20,9 @@ import { ArrowLeft, FileCheck, RefreshCw, Calendar, AlertTriangle } from "lucide
 function Weighing({ label, value, when, color }: { label: string; value: number | null; when: string | null; color: string }) {
   return (
     <div>
-      <span className="text-zinc-400 block text-[11px]">{label}</span>
+      <span className="text-muted block text-xs">{label}</span>
       <span className={`font-mono font-bold text-base ${color}`}>{value === null ? "Pendiente" : formatKg(value)}</span>
-      {when && <span className="block text-[10px] font-mono text-zinc-400">{formatBackendDateTime(when)}</span>}
+      {when && <span className="block text-xs font-mono text-muted">{formatBackendDateTime(when)}</span>}
     </div>
   );
 }
@@ -49,7 +49,7 @@ function OrderDetailContent({ params }: { params: Promise<{ orderNumber: string 
   if (Number.isNaN(orderNumber)) {
     return (
       <div className="p-8 text-center space-y-4">
-        <p className="text-sm text-rose-600 font-semibold">«{resolved.orderNumber}» no es un número de orden válido.</p>
+        <p className="text-sm text-danger-ink font-semibold">«{resolved.orderNumber}» no es un número de orden válido.</p>
         {backToList}
       </div>
     );
@@ -60,8 +60,8 @@ function OrderDetailContent({ params }: { params: Promise<{ orderNumber: string 
   if (order.isLoading && !order.data) {
     return (
       <div role="status" className="flex flex-col items-center justify-center p-24 text-center">
-        <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mb-3" />
-        <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Cargando datos de la orden #{orderNumber}…</span>
+        <RefreshCw className="h-8 w-8 animate-spin text-accent mb-3" />
+        <span className="text-sm font-medium text-muted">Cargando datos de la orden #{orderNumber}…</span>
       </div>
     );
   }
@@ -69,7 +69,7 @@ function OrderDetailContent({ params }: { params: Promise<{ orderNumber: string 
   if (!order.data) {
     return (
       <div className="p-8 text-center space-y-4">
-        <p role="alert" className="text-sm text-rose-600 font-semibold">{order.error ?? "No se pudo cargar la orden"}</p>
+        <p role="alert" className="text-sm text-danger-ink font-semibold">{order.error ?? "No se pudo cargar la orden"}</p>
         {backToList}
       </div>
     );
@@ -84,16 +84,16 @@ function OrderDetailContent({ params }: { params: Promise<{ orderNumber: string 
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-zinc-200/80 dark:border-zinc-800">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-line/80">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Link href="/orders" className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors" aria-label="Volver al listado">
+            <Link href="/orders" className="p-1 rounded-lg hover:bg-elevated text-muted transition-colors" aria-label="Volver al listado">
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <h1 className="text-2xl font-black font-mono tracking-tight text-zinc-900 dark:text-zinc-50">Orden #{o.orderNumber}</h1>
+            <h1 className="page-title font-bold font-mono tracking-tight text-foreground">Orden #{o.orderNumber}</h1>
             <StateBadge state={o.status} />
           </div>
-          <div className="flex items-center gap-4 text-xs text-zinc-500 pl-7">
+          <div className="flex items-center gap-4 text-xs text-muted pl-7">
             <span className="flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5" /> Recibida: {formatBackendDateTime(o.receptionDateTime)}
             </span>
@@ -108,7 +108,7 @@ function OrderDetailContent({ params }: { params: Promise<{ orderNumber: string 
           <CloseOrderButton orderNumber={o.orderNumber} status={o.status} onClosed={refreshAll} />
           {o.status === 4 && (
             <Link href={`/orders/${o.orderNumber}/reconciliation`}>
-              <Button variant="primary" size="sm" className="gap-1.5 bg-violet-600 hover:bg-violet-700 text-white shadow-sm">
+              <Button variant="primary" size="sm" className="gap-1.5  shadow-sm">
                 <FileCheck className="h-4 w-4" />
                 Ver conciliación final
               </Button>
@@ -118,22 +118,22 @@ function OrderDetailContent({ params }: { params: Promise<{ orderNumber: string 
       </div>
 
       {order.error && (
-        <div role="alert" className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
+        <div role="alert" className="flex items-center gap-2 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-xs font-medium text-warning">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           {order.error} (se muestra la última información recibida)
         </div>
       )}
 
       {/* Pesajes: el PIN de activación no se muestra (el backend no lo publica; solo viaja en la respuesta de la tara) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-zinc-100/70 dark:bg-zinc-900/60 rounded-2xl border border-zinc-200/60 dark:border-zinc-800 text-xs">
-        <Weighing label="Preset objetivo" value={o.preset} when={null} color="text-zinc-900 dark:text-zinc-100" />
-        <Weighing label="Pesaje inicial (tara)" value={o.tare} when={o.initialWeighingDateTime} color="text-blue-600 dark:text-blue-400" />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-elevated/70 rounded-2xl border border-line/60 text-xs">
+        <Weighing label="Preset objetivo" value={o.preset} when={null} color="text-foreground" />
+        <Weighing label="Pesaje inicial (tara)" value={o.tare} when={o.initialWeighingDateTime} color="text-accent" />
         <div>
-          <span className="text-zinc-400 block text-[11px]">Activación de la carga</span>
-          <span className="font-mono font-bold text-base text-emerald-600 dark:text-emerald-400">{o.activationDateTime ? "Activada" : "Pendiente"}</span>
-          {o.activationDateTime && <span className="block text-[10px] font-mono text-zinc-400">{formatBackendDateTime(o.activationDateTime)}</span>}
+          <span className="text-muted block text-xs">Activación de la carga</span>
+          <span className="font-mono font-bold text-base text-success">{o.activationDateTime ? "Activada" : "Pendiente"}</span>
+          {o.activationDateTime && <span className="block text-xs font-mono text-muted">{formatBackendDateTime(o.activationDateTime)}</span>}
         </div>
-        <Weighing label="Pesaje final" value={o.finalWeight} when={o.finalWeighingDateTime} color="text-violet-600 dark:text-violet-400" />
+        <Weighing label="Pesaje final" value={o.finalWeight} when={o.finalWeighingDateTime} color="text-accent" />
       </div>
 
       <TelemetryGauges
@@ -172,8 +172,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderNum
     <React.Suspense
       fallback={
         <div className="flex flex-col items-center justify-center p-24 text-center">
-          <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mb-3" />
-          <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Cargando orden…</span>
+          <RefreshCw className="h-8 w-8 animate-spin text-accent mb-3" />
+          <span className="text-sm font-medium text-muted">Cargando orden…</span>
         </div>
       }
     >

@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 
 function FullScreenSpinner({ label }: { label: string }) {
   return (
-    <div role="status" className="flex min-h-screen items-center justify-center gap-2 text-sm text-zinc-500">
+    <div role="status" className="flex min-h-screen items-center justify-center gap-2 text-sm text-muted">
       <Loader2 className="h-4 w-4 animate-spin" />
       {label}
     </div>

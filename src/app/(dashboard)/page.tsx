@@ -21,11 +21,11 @@ function Kpi({ label, value, icon, accent, testId }: { label: string; value: num
   return (
     <Card className={`border-l-4 ${accent}`}>
       <CardContent className="p-4">
-        <div className="flex items-center justify-between text-zinc-400">
-          <span className="text-[11px] font-bold uppercase tracking-wider">{label}</span>
+        <div className="flex items-center justify-between text-muted">
+          <span className="text-xs font-bold uppercase tracking-wider">{label}</span>
           {icon}
         </div>
-        <div className="text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100 mt-1.5" data-testid={testId}>
+        <div className="metric-value font-mono text-foreground mt-3" data-testid={testId}>
           {value === null ? "—" : value}
         </div>
       </CardContent>
@@ -46,10 +46,10 @@ function DashboardOverview() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-zinc-200/80 dark:border-zinc-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-line/80">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">Tablero de Control de Terminal</h1>
-          <p className="text-xs text-zinc-500 mt-1">Supervisión del flujo de carga de gas líquido. Los datos se actualizan solos.</p>
+          <h1 className="page-title font-bold tracking-tight text-foreground">Tu terminal, en perspectiva</h1>
+          <p className="text-xs text-muted mt-1">Órdenes, carga y conciliación. Toda la operación en una sola vista.</p>
         </div>
         <PermissionGate permission="simulator:use">
           <Link href="/simulator">
@@ -62,29 +62,29 @@ function DashboardOverview() {
       </div>
 
       {firstError && (
-        <div role="alert" className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300">
+        <div role="alert" className="flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-xs font-medium text-danger-ink">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           {firstError}
         </div>
       )}
 
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3.5">
-        <Kpi label="Total órdenes" value={total} icon={<Layers className="h-4 w-4" />} accent="border-l-zinc-300" testId="kpi-total" />
-        <Kpi label="1: Pend. pesaje" value={c?.[1] ?? null} icon={<Clock className="h-4 w-4 text-blue-500" />} accent="border-l-blue-500" testId="kpi-1" />
-        <Kpi label="2: En carga" value={c?.[2] ?? null} icon={<Activity className="h-4 w-4 text-emerald-500" />} accent="border-l-emerald-500" testId="kpi-2" />
-        <Kpi label="3: Cerradas" value={c?.[3] ?? null} icon={<Scale className="h-4 w-4 text-amber-500" />} accent="border-l-amber-500" testId="kpi-3" />
-        <Kpi label="4: Finalizadas" value={c?.[4] ?? null} icon={<CheckCircle2 className="h-4 w-4 text-violet-600" />} accent="border-l-violet-600" testId="kpi-4" />
+      <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-3.5">
+        <Kpi label="Total órdenes" value={total} icon={<Layers className="h-4 w-4" />} accent="border-l-line" testId="kpi-total" />
+        <Kpi label="1: Pend. pesaje" value={c?.[1] ?? null} icon={<Clock className="h-4 w-4 text-warning" />} accent="border-l-warning/30" testId="kpi-1" />
+        <Kpi label="2: En carga" value={c?.[2] ?? null} icon={<Activity className="h-4 w-4 text-accent" />} accent="border-l-accent/30" testId="kpi-2" />
+        <Kpi label="3: Cerradas" value={c?.[3] ?? null} icon={<Scale className="h-4 w-4 text-inactive" />} accent="border-l-inactive/30" testId="kpi-3" />
+        <Kpi label="4: Finalizadas" value={c?.[4] ?? null} icon={<CheckCircle2 className="h-4 w-4 text-success" />} accent="border-l-success/30" testId="kpi-4" />
         <Link href="/alarms" className="contents">
-          <Kpi label="Alarmas pendientes" value={alarms.data} icon={<ShieldAlert className="h-4 w-4 text-rose-500" />} accent="border-l-rose-500" testId="kpi-alarms" />
+          <Kpi label="Alarmas pendientes" value={alarms.data} icon={<ShieldAlert className="h-4 w-4 text-danger-ink" />} accent="border-l-danger/30" testId="kpi-alarms" />
         </Link>
       </div>
 
       {live.orders.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-success flex items-center gap-2">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+              <span className=" absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-success" />
             </span>
             Monitoreo en vivo: órdenes en carga ({live.pageInfo.totalElements})
           </h2>
@@ -95,10 +95,10 @@ function DashboardOverview() {
               const eta = calculateEta({ status: order.status, preset: order.preset, accumulatedMass: order.lastAccumulatedMass, flowRate: order.lastFlowRate });
               const elapsed = loadingElapsedMillis(order.status, order.loadingStartDateTime, now);
               return (
-                <Card key={order.orderNumber} className="border-emerald-300/80 dark:border-emerald-800/80 bg-gradient-to-br from-white via-white to-emerald-50/20 dark:from-zinc-900 dark:to-emerald-950/20 shadow-sm">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <Card key={order.orderNumber} className="border-success/30 shadow-sm">
+                  <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 pb-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-base text-zinc-900 dark:text-zinc-50">Orden #{order.orderNumber}</span>
+                      <span className="font-mono font-bold text-base text-foreground">Orden #{order.orderNumber}</span>
                       <StateBadge state={order.status as OrderStatusCode} showIcon={false} />
                     </div>
                     <Link href={`/orders/${order.orderNumber}`}>
@@ -108,37 +108,37 @@ function DashboardOverview() {
                     </Link>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="flex justify-between text-xs text-zinc-500">
-                      <span>Camión: <b className="text-zinc-800 dark:text-zinc-200">{order.truck.plate}</b></span>
-                      <span>Cliente: <b className="text-zinc-800 dark:text-zinc-200">{order.customer.companyName}</b></span>
+                    <div className="flex flex-wrap justify-between gap-2 text-xs text-muted">
+                      <span>Camión: <b className="text-foreground">{order.truck.plate}</b></span>
+                      <span>Cliente: <b className="text-foreground">{order.customer.companyName}</b></span>
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between text-xs font-mono">
-                        <span className="text-zinc-400">Progreso:</span>
-                        <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                        <span className="text-muted">Progreso:</span>
+                        <span className="font-bold text-success">
                           {formatKg(order.lastAccumulatedMass)} / {formatKg(order.preset)} ({progress.toFixed(1)}%)
                         </span>
                       </div>
-                      <div className="h-2 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+                      <div className="h-2 w-full bg-elevated rounded-full overflow-hidden">
+                        <div className="h-full bg-accent rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
                       </div>
                     </div>
-                    <div className="grid grid-cols-4 gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800 text-center font-mono text-xs">
-                      <div className="p-1.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
-                        <span className="text-[10px] text-zinc-400 block">ETA</span>
-                        <span className="font-bold text-blue-600 dark:text-blue-400">{etaLabel(eta)}</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-line text-center font-mono text-xs">
+                      <div className="p-1.5 bg-canvas rounded-lg">
+                        <span className="text-xs text-muted block">ETA</span>
+                        <span className="font-bold text-accent">{etaLabel(eta)}</span>
                       </div>
-                      <div className="p-1.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
-                        <span className="text-[10px] text-zinc-400 block">Transcurrido</span>
-                        <span className="font-bold text-zinc-700 dark:text-zinc-200">{elapsed === null ? "—" : formatDuration(elapsed)}</span>
+                      <div className="p-1.5 bg-canvas rounded-lg">
+                        <span className="text-xs text-muted block">Transcurrido</span>
+                        <span className="font-bold text-foreground">{elapsed === null ? "—" : formatDuration(elapsed)}</span>
                       </div>
-                      <div className="p-1.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
-                        <span className="text-[10px] text-zinc-400 block">Temp.</span>
-                        <span className="font-bold text-amber-600 dark:text-amber-400">{formatTemperature(order.lastTemperature)}</span>
+                      <div className="p-1.5 bg-canvas rounded-lg">
+                        <span className="text-xs text-muted block">Temp.</span>
+                        <span className="font-bold text-warning">{formatTemperature(order.lastTemperature)}</span>
                       </div>
-                      <div className="p-1.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
-                        <span className="text-[10px] text-zinc-400 block">Caudal</span>
-                        <span className="font-bold text-emerald-600 dark:text-emerald-400">{formatFlowRate(order.lastFlowRate)}</span>
+                      <div className="p-1.5 bg-canvas rounded-lg">
+                        <span className="text-xs text-muted block">Caudal</span>
+                        <span className="font-bold text-success">{formatFlowRate(order.lastFlowRate)}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -151,8 +151,8 @@ function DashboardOverview() {
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500">Últimas órdenes recibidas</h2>
-          <Link href="/orders" className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-muted">Últimas órdenes recibidas</h2>
+          <Link href="/orders" className="text-xs font-semibold text-accent hover:text-accent flex items-center gap-1">
             Ver todas, con filtros y orden <ArrowRight className="h-3 w-3" />
           </Link>
         </div>

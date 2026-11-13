@@ -26,13 +26,13 @@ function OrderReconciliationContent({
   if (!isValidNumber || Number.isNaN(orderNumber)) {
     return (
       <div className="p-12 text-center space-y-4 max-w-md mx-auto">
-        <div className="p-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-full w-12 h-12 flex items-center justify-center mx-auto">
+        <div className="p-3 bg-danger/10 text-danger-ink rounded-full w-12 h-12 flex items-center justify-center mx-auto">
           <AlertCircle className="h-6 w-6" />
         </div>
-        <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+        <h3 className="text-lg font-bold text-foreground">
           Número de orden no válido
         </h3>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-muted">
           «{resolvedParams.orderNumber}» no corresponde a un formato válido de orden.
         </p>
         <Link href="/orders">
@@ -52,8 +52,8 @@ function OrderReconciliationContent({
   if (isLoading) {
     return (
       <div role="status" className="flex flex-col items-center justify-center p-24 text-center">
-        <RefreshCw className="h-8 w-8 animate-spin text-violet-600 mb-3" />
-        <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+        <RefreshCw className="h-8 w-8 animate-spin text-accent mb-3" />
+        <span className="text-sm font-medium text-muted">
           Obteniendo conciliación para la orden #{orderNumber}…
         </span>
       </div>
@@ -64,17 +64,17 @@ function OrderReconciliationContent({
   if (errorStatus === 409) {
     return (
       <div className="p-12 text-center space-y-5 max-w-lg mx-auto">
-        <div className="p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-full w-14 h-14 flex items-center justify-center mx-auto">
+        <div className="p-3 bg-warning/10 text-warning rounded-full w-14 h-14 flex items-center justify-center mx-auto">
           <Scale className="h-7 w-7" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+          <h3 className="text-xl font-bold text-foreground">
             Conciliación No Disponible
           </h3>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 font-medium">
+          <p className="text-sm text-muted font-medium">
             {error || "La orden no se encuentra en estado 4 (Finalizada)."}
           </p>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-muted">
             {order
               ? `La orden #${orderNumber} se encuentra en estado: «${ORDER_STATUS_LABELS[order.status] ?? order.status}». La conciliación de pesajes solo está habilitada una vez concluido el pesaje final (TMS).`
               : "La conciliación sólo se encuentra disponible para órdenes que han registrado su pesaje final en balanza."}
@@ -82,7 +82,7 @@ function OrderReconciliationContent({
         </div>
         <div className="flex justify-center gap-3 pt-2">
           <Link href={`/orders/${orderNumber}`}>
-            <Button variant="primary" size="sm" className="gap-1.5 bg-violet-600 hover:bg-violet-700 text-white">
+            <Button variant="primary" size="sm" className="gap-1.5 ">
               <Eye className="h-4 w-4" />
               Ver Detalle de la Orden
             </Button>
@@ -101,13 +101,13 @@ function OrderReconciliationContent({
   if (error || !data) {
     return (
       <div className="p-12 text-center space-y-4 max-w-md mx-auto">
-        <div className="p-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-full w-12 h-12 flex items-center justify-center mx-auto">
+        <div className="p-3 bg-danger/10 text-danger-ink rounded-full w-12 h-12 flex items-center justify-center mx-auto">
           <AlertCircle className="h-6 w-6" />
         </div>
-        <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+        <h3 className="text-lg font-bold text-foreground">
           Error al Cargar Conciliación
         </h3>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-muted">
           {error || "No fue posible obtener los datos de conciliación para esta orden."}
         </p>
         <div className="flex justify-center gap-2">
@@ -128,22 +128,22 @@ function OrderReconciliationContent({
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200/80 dark:border-zinc-800 print:hidden">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-line/80 print:hidden">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <Link
               href={`/orders/${orderNumber}`}
-              className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
+              className="p-1 rounded-lg hover:bg-elevated text-muted transition-colors"
               aria-label="Volver al detalle de la orden"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <h1 className="text-2xl font-black font-mono tracking-tight text-zinc-900 dark:text-zinc-50">
+            <h1 className="page-title font-bold font-mono tracking-tight text-foreground">
               Conciliación Final: Orden #{data.reconciliation.orderNumber}
             </h1>
             <StateBadge state={data.order.status} />
           </div>
-          <p className="text-xs text-zinc-500 mt-1 pl-7">
+          <p className="text-xs text-muted mt-1 pl-7">
             Comparativa de pesajes de balanza TMS versus medición de masa por caudalímetro másico.
           </p>
         </div>
@@ -201,8 +201,8 @@ export default function OrderReconciliationPage({
     <React.Suspense
       fallback={
         <div role="status" className="flex flex-col items-center justify-center p-24 text-center">
-          <RefreshCw className="h-8 w-8 animate-spin text-violet-600 mb-3" />
-          <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+          <RefreshCw className="h-8 w-8 animate-spin text-accent mb-3" />
+          <span className="text-sm font-medium text-muted">
             Cargando conciliación…
           </span>
         </div>

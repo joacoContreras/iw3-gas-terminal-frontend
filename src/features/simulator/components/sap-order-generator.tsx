@@ -64,7 +64,7 @@ export function SapOrderGenerator({ onOrderCreated }: { onOrderCreated: (orderNu
               <Input label="Preset (kg)" name="preset" type="number" min="0.01" step="any" defaultValue="15000" required />
               <Input label="Fecha prevista (hora de Argentina)" name="plannedLoadDateTime" type="datetime-local" required />
             </div>
-            <fieldset className="space-y-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+            <fieldset className="space-y-3 border-t border-line pt-4">
               <legend className="text-sm font-semibold">Camión y cisternas</legend>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Input label="Código externo del camión" name="truckCode" defaultValue="TRK-DEMO" required />
@@ -82,7 +82,7 @@ export function SapOrderGenerator({ onOrderCreated }: { onOrderCreated: (orderNu
               ))}
               <Button type="button" variant="outline" size="sm" onClick={() => setTanks([...tanks, { number: Math.max(...tanks.map((t) => t.number)) + 1, capacityLiters: 5000 }])}><Plus className="h-4 w-4" /> Agregar cisterna</Button>
             </fieldset>
-            <fieldset className="space-y-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+            <fieldset className="space-y-3 border-t border-line pt-4">
               <legend className="text-sm font-semibold">Chofer</legend>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <Input label="Código externo del chofer" name="driverCode" defaultValue="DRV-DEMO" required />
@@ -91,7 +91,7 @@ export function SapOrderGenerator({ onOrderCreated }: { onOrderCreated: (orderNu
                 <Input label="Documento del chofer" name="driverDocument" defaultValue="30111222" />
               </div>
             </fieldset>
-            <fieldset className="space-y-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+            <fieldset className="space-y-3 border-t border-line pt-4">
               <legend className="text-sm font-semibold">Cliente y producto</legend>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Input label="Código externo del cliente" name="customerCode" defaultValue="CUS-DEMO" required />
@@ -103,8 +103,8 @@ export function SapOrderGenerator({ onOrderCreated }: { onOrderCreated: (orderNu
               </div>
             </fieldset>
           </fieldset>
-          {error && <p role="alert" className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
-          {createdOrderNumber !== null && <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">Orden #{createdOrderNumber} creada en estado 1. <Link className="underline" href={`/orders/${createdOrderNumber}`}>Ver orden</Link></p>}
+          {error && <p role="alert" className="text-sm text-danger-ink">{error}</p>}
+          {createdOrderNumber !== null && <p role="status" className="text-sm text-success">Orden #{createdOrderNumber} creada en estado 1. <Link className="underline" href={`/orders/${createdOrderNumber}`}>Ver orden</Link></p>}
           <Button type="submit" isLoading={isLoading}><Send className="h-4 w-4" /> Emitir orden desde SAP</Button>
         </form>
       </CardContent>

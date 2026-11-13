@@ -6,65 +6,62 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import type { Permission } from "@/features/auth/lib/permissions";
-import {
-  LayoutDashboard,
-  Layers,
-  ShieldAlert,
-  Sliders,
-} from "lucide-react";
+import { Brand } from "./brand";
+import { LayoutDashboard, Layers, ShieldAlert, Sliders, X, Waves, ArrowUpRight } from "lucide-react";
 
-/** Cada módulo exige un permiso: el menú solo muestra lo que el rol puede usar. */
-const NAV_ITEMS: { label: string; href: string; icon: typeof Layers; exact: boolean; permission: Permission }[] = [
-  { label: "Dashboard General", href: "/", icon: LayoutDashboard, exact: true, permission: "orders:view" },
-  { label: "Órdenes de Carga", href: "/orders", icon: Layers, exact: false, permission: "orders:view" },
-  { label: "Alarmas de Temperatura", href: "/alarms", icon: ShieldAlert, exact: false, permission: "alarms:view" },
-  { label: "Simulador de Integración", href: "/simulator", icon: Sliders, exact: false, permission: "simulator:use" },
+const NAV_ITEMS: { label: string; href: string; icon: typeof Layers; exact: boolean; permission: Permission; number: string }[] = [
+  { label: "Vista general", href: "/", icon: LayoutDashboard, exact: true, permission: "orders:view", number: "01" },
+  { label: "Órdenes de carga", href: "/orders", icon: Layers, exact: false, permission: "orders:view", number: "02" },
+  { label: "Alarmas", href: "/alarms", icon: ShieldAlert, exact: false, permission: "alarms:view", number: "03" },
+  { label: "Integraciones", href: "/simulator", icon: Sliders, exact: false, permission: "simulator:use", number: "04" },
 ];
 
-export function Sidebar() {
+function SidebarContents({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { can } = useAuth();
-  const navItems = NAV_ITEMS.filter((item) => can(item.permission));
-
-  return (
-    <aside className="w-64 shrink-0 hidden md:block border-r border-zinc-200/80 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/30">
-      <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 px-3 mb-2">
-        Módulos del Sistema
+  return <>
+    <Link href="/" onClick={onNavigate} aria-label="AetherLoad · Inicio" className="mb-12 block px-4 pt-8"><Brand compact /></Link>
+    <p className="eyebrow mb-4 px-5">Operación de terminal</p>
+    <nav aria-label="Navegación principal" className="space-y-2 px-3">
+      {NAV_ITEMS.filter((item) => can(item.permission)).map((item) => {
+        const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+        return <Link key={item.href} href={item.href} onClick={onNavigate} aria-current={active ? "page" : undefined}
+          className={cn("group relative flex items-center gap-3 rounded-lg border px-4 py-3.5 text-sm font-medium transition-colors", active ? "border-accent/20 bg-accent/10 text-accent" : "border-transparent text-muted hover:bg-elevated hover:text-foreground")}>
+          {active && <span className="absolute -left-3 h-6 w-0.5 rounded-full bg-accent" />}
+          <item.icon className="h-[18px] w-[18px] shrink-0" /><span>{item.label}</span><span className="ml-auto font-mono text-xs opacity-60">{item.number}</span>
+        </Link>;
+      })}
+    </nav>
+    <div className="mx-5 mt-auto space-y-4 pb-6 pt-12">
+      <div className="rounded-xl border border-line bg-canvas/40 p-4">
+        <Waves className="mb-3 h-6 w-6 text-accent" /><p className="text-sm font-medium text-foreground">Cada carga, bajo control.</p><p className="mt-2 text-xs leading-relaxed text-muted">Órdenes, pesajes y telemetría en un solo lugar.</p>
+        {can("orders:view") && <Link href="/orders" onClick={onNavigate} className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-accent">Explorar órdenes <ArrowUpRight className="h-3.5 w-3.5" /></Link>}
       </div>
-      <nav className="space-y-1">
-        {navItems.map((item) => {
-          const isActive = item.exact
-            ? pathname === item.href
-            : pathname.startsWith(item.href);
+      <p className="text-xs text-muted">AetherLoad <span className="mx-1 text-muted">/</span> Terminal de gas líquido</p>
+    </div>
+  </>;
+}
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors",
-                isActive
-                  ? "bg-blue-600 text-white shadow-xs"
-                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800"
-              )}
-            >
-              <item.icon className="h-4 w-4 shrink-0" />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Info card at bottom of sidebar */}
-      <div className="mt-8 p-3.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 text-[11px] text-blue-900 dark:text-blue-300">
-        <span className="font-bold block">Backend Spring Boot</span>
-        <span className="text-[10px] text-blue-700/80 dark:text-blue-400/80 block mt-0.5 font-mono">
-          API: /api/v1 (REST + JWT)
-        </span>
-        <span className="text-[10px] text-blue-700/80 dark:text-blue-400/80 block font-mono">
-          Máquina de estados 1 → 4
-        </span>
-      </div>
-    </aside>
-  );
+export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const dialog = React.useRef<HTMLDialogElement>(null);
+  React.useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const closeOnDesktop = () => { if (desktop.matches) onClose(); };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, [onClose]);
+  React.useEffect(() => {
+    if (open) dialog.current?.showModal();
+    else dialog.current?.close();
+    const previous = document.body.style.overflow;
+    if (open) document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [open]);
+  return <>
+    <aside data-app-sidebar className="sticky top-0 hidden h-dvh min-w-0 flex-col border-r border-line bg-shell md:flex"><SidebarContents /></aside>
+    <dialog ref={dialog} id="mobile-navigation" aria-label="Navegación de AetherLoad" onCancel={onClose} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-y-0 left-0 m-0 h-dvh max-h-none w-72 max-w-[85vw] border-0 border-r border-line bg-shell p-0 backdrop:bg-canvas/80 md:hidden">
+      <div className="flex min-h-full flex-col"><button type="button" onClick={onClose} aria-label="Cerrar navegación" className="absolute right-3 top-3 rounded-lg p-2 text-muted"><X className="h-5 w-5" /></button><SidebarContents onNavigate={onClose} /></div>
+    </dialog>
+  </>;
 }

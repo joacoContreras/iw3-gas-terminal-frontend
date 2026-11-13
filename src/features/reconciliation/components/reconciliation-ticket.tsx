@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import type { Order, Reconciliation } from "@/types/api";
 import { formatKg, formatTemperature, formatDensity, formatFlowRate } from "@/lib/formatters";
 import { formatBackendDateTime } from "@/lib/dates";
@@ -36,18 +37,19 @@ export function ReconciliationTicket({
         </Button>
       </div>
 
-      <div className="p-8 bg-white text-zinc-900 rounded-2xl border border-zinc-200 shadow-xs print:border-none print:shadow-none print:p-0 max-w-2xl mx-auto font-sans">
+      <div className="reconciliation-paper mx-auto max-w-2xl rounded-2xl border border-zinc-200 bg-white p-5 font-sans text-zinc-900 shadow-xs sm:p-8 print:border-none print:p-0 print:shadow-none">
+        <div className="mb-5 flex items-center gap-3"><Image src="/brand/aetherload-logo.png" alt="" width={56} height={56} className="rounded-lg" /><span className="text-xl font-semibold tracking-tight text-zinc-900">AetherLoad</span></div>
         {/* Cabecera Remito */}
-        <div className="border-b-2 border-zinc-900 pb-4 flex justify-between items-start">
+        <div className="flex flex-col items-start justify-between gap-4 border-b-2 border-zinc-900 pb-4 sm:flex-row">
           <div>
-            <h2 className="text-xl font-black uppercase tracking-tight text-zinc-950">
+            <h2 className="text-base font-bold uppercase tracking-tight text-zinc-950 sm:text-lg">
               TERMINAL DE CARGA DE GAS LICUADO
             </h2>
             <p className="text-xs text-zinc-500 font-mono">
               Comprobante Oficial de Conciliación de Carga
             </p>
           </div>
-          <div className="text-right">
+          <div className="shrink-0 sm:text-right">
             <span className="font-mono text-base font-bold text-zinc-900">
               ORDEN #{reconciliation.orderNumber}
             </span>
@@ -58,15 +60,15 @@ export function ReconciliationTicket({
         </div>
 
         {/* Datos Transporte y Cliente */}
-        <div className="grid grid-cols-2 gap-4 py-4 border-b border-zinc-200 text-xs">
+        <div className="grid grid-cols-1 gap-4 border-b border-zinc-200 py-4 text-xs sm:grid-cols-2">
           <div>
-            <span className="text-zinc-400 block font-semibold uppercase">Cliente</span>
+            <span className="text-zinc-600 block font-semibold uppercase">Cliente</span>
             <span className="font-bold text-sm text-zinc-900">{order.customer.companyName}</span>
             <span className="text-zinc-500 block mt-1">Producto: {order.product.name}</span>
             <span className="text-zinc-500 block">Preset programado: {formatKg(order.preset)}</span>
           </div>
           <div>
-            <span className="text-zinc-400 block font-semibold uppercase">Transporte</span>
+            <span className="text-zinc-600 block font-semibold uppercase">Transporte</span>
             <span className="font-bold text-sm font-mono text-zinc-900">
               Patente: {order.truck.plate}
             </span>
@@ -130,15 +132,15 @@ export function ReconciliationTicket({
         {/* Promedios */}
         <div className="grid grid-cols-3 gap-2 py-3 border-b border-zinc-200 text-xs font-mono text-center">
           <div>
-            <span className="text-zinc-400 block text-[10px]">Temp. Media</span>
+            <span className="text-zinc-600 block text-[10px]">Temp. Media</span>
             <span className="font-semibold">{formatTemperature(reconciliation.averageTemperature)}</span>
           </div>
           <div>
-            <span className="text-zinc-400 block text-[10px]">Densidad Media</span>
+            <span className="text-zinc-600 block text-[10px]">Densidad Media</span>
             <span className="font-semibold">{formatDensity(reconciliation.averageDensity)}</span>
           </div>
           <div>
-            <span className="text-zinc-400 block text-[10px]">Caudal Medio</span>
+            <span className="text-zinc-600 block text-[10px]">Caudal Medio</span>
             <span className="font-semibold">{formatFlowRate(reconciliation.averageFlowRate)}</span>
           </div>
         </div>

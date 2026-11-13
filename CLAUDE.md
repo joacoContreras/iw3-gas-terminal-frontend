@@ -155,6 +155,7 @@ Roles por endpoint (403), alarmas (`/alarms`, `/alarms/{id}/acknowledge`, `/alar
 
 ## 6. Convenciones del frontend
 
+- **Identidad visual:** AetherLoad, aplicada en `estilos-aetherload` (13/11/2026). Guía formal: `docs/styling.txt`; implementación y verificaciones: `docs/estilos-aetherload.md`. Paleta oscura estable con tokens semánticos en `src/app/globals.css`, fuente Geist y marca original en `public/brand/aetherload-logo.png`. Usar `Brand`, componentes UI y `control-input`/`aether-table`; no reintroducir paletas de color por pantalla ni variantes según el tema del sistema. El remito conserva una paleta clara para imprimir. Este trabajo visual fue autorizado directamente por el usuario; no implica completar la Fase 10 ni desplegar.
 - **Estructura por feature** (`src/features/<feature>/{components,hooks,services}`), páginas finas en `src/app`,
   componentes de UI genéricos en `src/components/ui`, tipos en `src/types`, utilidades en `src/lib`.
 - **Tipos que reflejan el JSON real** (nombres en inglés iguales al backend). Un único cliente HTTP

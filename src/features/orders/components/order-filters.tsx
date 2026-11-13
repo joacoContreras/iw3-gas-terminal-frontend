@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ORDER_STATUS_CODES, ORDER_STATUS_LABELS, type OrderSortField, type OrderStatusCode, type SortDirection } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export type SortValue = `${OrderSortField},${SortDirection}` | "";
 
@@ -39,7 +40,7 @@ export function OrderFilters({ status, onStatusChange, sort, onSortChange }: Ord
 
   return (
     <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 py-2">
-      <div className="flex flex-wrap items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl w-full lg:w-auto" role="tablist" aria-label="Filtrar por estado">
+      <div className="flex flex-wrap items-center gap-1.5 p-1 bg-elevated rounded-xl w-full lg:w-auto" role="tablist" aria-label="Filtrar por estado">
         {tabs.map((tab) => {
           const isActive = status === tab.value;
           return (
@@ -52,8 +53,8 @@ export function OrderFilters({ status, onStatusChange, sort, onSortChange }: Ord
               className={cn(
                 "px-3 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer",
                 isActive
-                  ? "bg-white text-zinc-900 shadow-xs dark:bg-zinc-900 dark:text-white"
-                  : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
+                  ? "bg-accent/10 text-accent shadow-xs ring-1 ring-accent/30"
+                  : "text-muted hover:text-foreground",
               )}
             >
               {tab.label}
@@ -62,12 +63,13 @@ export function OrderFilters({ status, onStatusChange, sort, onSortChange }: Ord
         })}
       </div>
 
-      <label className="flex items-center gap-2 text-xs text-zinc-500">
+      {(status !== undefined || sort !== "") && <Button variant="ghost" size="sm" onClick={() => { onStatusChange(undefined); onSortChange(""); }}>Limpiar filtros</Button>}
+      <label className="flex items-center gap-2 text-sm text-muted">
         Ordenar por
         <select
           value={sort}
           onChange={(e) => onSortChange(e.target.value as SortValue)}
-          className="h-9 rounded-lg border border-zinc-200 bg-white px-2 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+          className="control-input"
         >
           {SORT_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>

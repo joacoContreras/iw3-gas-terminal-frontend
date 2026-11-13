@@ -2,73 +2,41 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { ROLE_LABELS, primaryRole } from "@/features/auth/lib/permissions";
-import { Flame, Bell, LogOut } from "lucide-react";
+import { Brand } from "./brand";
+import { Bell, LogOut, Menu, ChevronRight } from "lucide-react";
 
-export function Navbar({ pendingCount = 0 }: { pendingCount?: number }) {
+export function Navbar({ pendingCount = 0, menuOpen, onOpenMenu }: { pendingCount?: number; menuOpen: boolean; onOpenMenu: () => void }) {
   const { user, logout, can } = useAuth();
+  const pathname = usePathname();
   const role = user ? primaryRole(user.roles) : null;
+  const section = pathname.startsWith("/orders") ? "Órdenes de carga" : pathname.startsWith("/alarms") ? "Alarmas" : pathname.startsWith("/simulator") ? "Integraciones" : "Vista general";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-zinc-200/80 bg-white/95 px-4 sm:px-6 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-900/95">
-      {/* Brand */}
-      <div className="flex items-center gap-3">
-        <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-xs">
-            <Flame className="h-5 w-5" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-black leading-none uppercase tracking-wide">
-              IW3 Gas Terminal
-            </span>
-            <span className="text-[10px] text-zinc-400 font-mono mt-0.5">
-              Control & Telemetría GLP
-            </span>
-          </div>
-        </Link>
+    <header data-app-header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-3 border-b border-line bg-canvas/95 px-4 backdrop-blur-md sm:px-6 lg:px-8">
+      <div className="flex min-w-0 items-center gap-3">
+        <button type="button" onClick={onOpenMenu} aria-label="Abrir navegación" aria-expanded={menuOpen} aria-controls="mobile-navigation" className="rounded-lg border border-line p-2.5 text-foreground md:hidden"><Menu className="h-5 w-5" /></button>
+        <Link href="/" className="hidden sm:inline-flex md:hidden" aria-label="AetherLoad · Inicio"><Brand compact /></Link>
+        <div className="hidden min-w-0 items-center gap-3 text-sm md:flex">
+          <span className="text-muted">Centro de control</span><ChevronRight className="h-3.5 w-3.5 text-muted" /><span className="truncate font-medium text-foreground">{section}</span>
+        </div>
+        <span className="text-lg font-semibold tracking-tight text-foreground sm:hidden">AetherLoad<span className="text-accent">.</span></span>
       </div>
-
-      {/* Right Actions */}
-      <div className="flex items-center gap-3">
-        {/* Campana de alarmas: solo para los roles que pueden ver alarmas */}
-        {can("alarms:view") && (
-          <Link
-            href="/alarms"
-            className="relative p-2 rounded-xl text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-            title="Alarmas de Temperatura"
-          >
-            <Bell className="h-5 w-5" />
-            {pendingCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white shadow-xs animate-bounce">
-                {pendingCount}
-              </span>
-            )}
-          </Link>
-        )}
-
-        {/* Usuario, rol y cierre de sesión */}
-        {user && (
-          <div className="flex items-center gap-2.5 pl-2 border-l border-zinc-200 dark:border-zinc-800">
-            <div className="hidden sm:flex flex-col text-right">
-              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100" data-testid="navbar-user">
-                {user.username}
-              </span>
-              <span className="text-[10px] text-zinc-400 font-mono" data-testid="navbar-role">
-                {role ? ROLE_LABELS[role] : "Sin rol asignado"}
-              </span>
-            </div>
-
-            <button
-              onClick={logout}
-              title="Cerrar sesión"
-              aria-label="Cerrar sesión"
-              className="p-2 rounded-xl text-zinc-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
+      <div className="flex shrink-0 items-center gap-3 sm:gap-5">
+        {can("alarms:view") && <Link href="/alarms" aria-label={`Alarmas de temperatura${pendingCount ? `: ${pendingCount} pendientes` : ""}`} className="relative rounded-lg p-2.5 text-muted transition-colors hover:bg-elevated hover:text-foreground">
+          <Bell className="h-5 w-5" />
+          {pendingCount > 0 && <span className="absolute -right-1 -top-1 flex min-w-5 h-5 items-center justify-center rounded-full bg-danger px-1 text-xs font-bold text-canvas">{pendingCount > 99 ? "99+" : pendingCount}</span>}
+        </Link>}
+        {user && <div className="flex items-center gap-3 border-l border-line pl-3 sm:pl-5">
+          <div className="hidden h-9 w-9 items-center justify-center rounded-full border border-accent/30 bg-accent/10 font-semibold text-accent lg:flex" aria-hidden="true">{user.username.slice(0, 2).toUpperCase()}</div>
+          <div className="hidden flex-col sm:flex">
+            <span className="text-sm font-semibold text-foreground" data-testid="navbar-user">{user.username}</span>
+            <span className="text-xs text-muted" data-testid="navbar-role">{role ? ROLE_LABELS[role] : "Sin rol asignado"}</span>
           </div>
-        )}
+          <button type="button" onClick={logout} title="Cerrar sesión" aria-label="Cerrar sesión" className="rounded-lg p-2.5 text-muted transition-colors hover:bg-danger/10 hover:text-danger-ink"><LogOut className="h-4 w-4" /></button>
+        </div>}
       </div>
     </header>
   );

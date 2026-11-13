@@ -49,32 +49,32 @@ export default function AlarmsManagementPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200/80 dark:border-zinc-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-line/80">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">
+            <h1 className="page-title font-bold tracking-tight text-foreground">
               Gestión de Alarmas de Temperatura
             </h1>
             {pendingCount > 0 && (
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-600 text-white animate-pulse">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-danger text-canvas ">
                 {pendingCount} Pendiente{pendingCount > 1 ? "s" : ""}
               </span>
             )}
           </div>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-muted mt-1">
             Supervisión de temperatura en tiempo real, aceptación con auditoría de usuario y configuración de umbrales.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl">
+          <div className="flex bg-elevated p-1 rounded-xl">
             <button
               type="button"
               onClick={() => setActiveTab("list")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === "list"
-                  ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs"
-                  : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400"
+                  ? "bg-accent/10 text-accent shadow-xs ring-1 ring-accent/30"
+                  : "text-muted hover:text-foreground"
               }`}
             >
               <List className="h-3.5 w-3.5" />
@@ -86,8 +86,8 @@ export default function AlarmsManagementPage() {
                 onClick={() => setActiveTab("config")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === "config"
-                    ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs"
-                    : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400"
+                    ? "bg-accent/10 text-accent shadow-xs ring-1 ring-accent/30"
+                    : "text-muted hover:text-foreground"
                 }`}
               >
                 <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -111,7 +111,7 @@ export default function AlarmsManagementPage() {
       {error && (
         <div
           role="alert"
-          className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300"
+          className="flex items-center gap-2 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-xs font-medium text-warning"
         >
           <AlertTriangle className="h-4 w-4 shrink-0" />
           {error} (se muestra la última información recibida)
@@ -123,14 +123,14 @@ export default function AlarmsManagementPage() {
         <div className="space-y-4">
           {/* Filtros de estado */}
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-1.5 p-1 bg-zinc-100/80 dark:bg-zinc-800/60 rounded-xl text-xs">
+            <div className="flex items-center gap-1.5 p-1 bg-elevated/80 rounded-xl text-xs">
               <button
                 type="button"
                 onClick={() => handleStatusChange("ALL")}
                 className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
                   statusFilter === "ALL"
-                    ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs font-semibold"
-                    : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400"
+                    ? "bg-accent/10 text-accent shadow-xs ring-1 ring-accent/30 font-semibold"
+                    : "text-muted hover:text-foreground"
                 }`}
               >
                 Todas
@@ -140,13 +140,13 @@ export default function AlarmsManagementPage() {
                 onClick={() => handleStatusChange("PENDING")}
                 className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
                   statusFilter === "PENDING"
-                    ? "bg-white dark:bg-zinc-900 text-rose-600 dark:text-rose-400 shadow-xs font-semibold"
-                    : "text-zinc-500 hover:text-rose-600 dark:text-zinc-400"
+                    ? "bg-panel text-danger-ink shadow-xs font-semibold"
+                    : "text-muted hover:text-danger-ink"
                 }`}
               >
                 Pendientes
                 {pendingCount > 0 && (
-                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-rose-600 text-white font-mono">
+                  <span className="px-1.5 py-0.2 rounded-full text-xs bg-danger text-canvas font-mono">
                     {pendingCount}
                   </span>
                 )}
@@ -156,8 +156,8 @@ export default function AlarmsManagementPage() {
                 onClick={() => handleStatusChange("ACKNOWLEDGED")}
                 className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
                   statusFilter === "ACKNOWLEDGED"
-                    ? "bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-400 shadow-xs font-semibold"
-                    : "text-zinc-500 hover:text-emerald-600 dark:text-zinc-400"
+                    ? "bg-panel text-success shadow-xs font-semibold"
+                    : "text-muted hover:text-success"
                 }`}
               >
                 Aceptadas
@@ -168,8 +168,8 @@ export default function AlarmsManagementPage() {
           {/* Tabla de alarmas */}
           {isLoading ? (
             <div role="status" className="flex flex-col items-center justify-center p-16 text-center">
-              <RefreshCw className="h-7 w-7 animate-spin text-blue-600 mb-2" />
-              <span className="text-xs text-zinc-500">Cargando alarmas de temperatura…</span>
+              <RefreshCw className="h-7 w-7 animate-spin text-accent mb-2" />
+              <span className="text-xs text-muted">Cargando alarmas de temperatura…</span>
             </div>
           ) : (
             <AlarmTable

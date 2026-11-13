@@ -89,8 +89,8 @@ export function TmsScaleControl({ orders, onOrderUpdated }: TmsScaleControlProps
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Scale className="h-4 w-4 text-emerald-600" />
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+            <Scale className="h-4 w-4 text-success" />
+            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-success">
               Punto 2: Balanza TMS (Pesaje Inicial / Tara)
             </CardTitle>
           </div>
@@ -102,7 +102,7 @@ export function TmsScaleControl({ orders, onOrderUpdated }: TmsScaleControlProps
         <CardContent>
           <form onSubmit={handleSendTara} className="space-y-3">
             <div>
-              <label htmlFor="tare-order" className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+              <label htmlFor="tare-order" className="block text-xs font-semibold text-foreground mb-1">
                 Seleccionar Orden en Estado 1:
               </label>
               <select
@@ -113,7 +113,7 @@ export function TmsScaleControl({ orders, onOrderUpdated }: TmsScaleControlProps
                   setGeneratedPin(null);
                   setTaraError(null);
                 }}
-                className="w-full h-10 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 text-xs"
+                className="control-input"
                 disabled={state1Orders.length === 0 || isTaraLoading}
               >
                 {state1Orders.length === 0 && (
@@ -139,22 +139,22 @@ export function TmsScaleControl({ orders, onOrderUpdated }: TmsScaleControlProps
             />
 
             {taraError && (
-              <div role="alert" className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-300 flex items-center gap-2">
+              <div role="alert" className="p-3 bg-danger/10 border border-danger/30 rounded-xl text-xs text-danger-ink flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{taraError}</span>
               </div>
             )}
 
             {generatedPin !== null && (
-              <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800 text-xs space-y-1">
-                <div className="flex items-center gap-1.5 font-bold text-emerald-800 dark:text-emerald-300">
-                  <Key className="h-4 w-4 text-emerald-600" />
+              <div className="p-3.5 bg-success/10 rounded-xl border border-success/30 text-xs space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-success">
+                  <Key className="h-4 w-4 text-success" />
                   <span>Orden #{generatedPin.orderNumber}: tara guardada. PIN de activación:</span>
                 </div>
-                <span className="font-mono text-2xl font-black text-emerald-700 dark:text-emerald-400 tracking-widest block pt-1">
+                <span className="font-mono text-2xl font-bold text-success tracking-widest block pt-1">
                   {generatedPin.pin}
                 </span>
-                <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                <p className="text-xs text-muted">
                   Copiá esta clave: la requerirás en el Punto 3 para activar el cabezal de carga.
                 </p>
               </div>
@@ -166,7 +166,7 @@ export function TmsScaleControl({ orders, onOrderUpdated }: TmsScaleControlProps
               size="sm"
               isLoading={isTaraLoading}
               disabled={state1Orders.length === 0}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="w-full "
             >
               Registrar Tara y Generar PIN (Punto 2)
             </Button>
@@ -178,8 +178,8 @@ export function TmsScaleControl({ orders, onOrderUpdated }: TmsScaleControlProps
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Scale className="h-4 w-4 text-violet-600" />
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-violet-700 dark:text-violet-400">
+            <Scale className="h-4 w-4 text-accent" />
+            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-accent">
               Punto 5: Balanza TMS (Pesaje Final / Bruto)
             </CardTitle>
           </div>
@@ -191,7 +191,7 @@ export function TmsScaleControl({ orders, onOrderUpdated }: TmsScaleControlProps
         <CardContent>
           <form onSubmit={handleSendFinal} className="space-y-3">
             <div>
-              <label htmlFor="final-order" className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+              <label htmlFor="final-order" className="block text-xs font-semibold text-foreground mb-1">
                 Seleccionar Orden en Estado 3 (Cerrada para carga):
               </label>
               <select
@@ -202,7 +202,7 @@ export function TmsScaleControl({ orders, onOrderUpdated }: TmsScaleControlProps
                   setReconciliation(null);
                   setFinalError(null);
                 }}
-                className="w-full h-10 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 text-xs"
+                className="control-input"
                 disabled={state3Orders.length === 0 || isFinalLoading}
               >
                 {state3Orders.length === 0 && (
@@ -228,30 +228,30 @@ export function TmsScaleControl({ orders, onOrderUpdated }: TmsScaleControlProps
             />
 
             {finalError && (
-              <div role="alert" className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-300 flex items-center gap-2">
+              <div role="alert" className="p-3 bg-danger/10 border border-danger/30 rounded-xl text-xs text-danger-ink flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{finalError}</span>
               </div>
             )}
 
             {reconciliation && (
-              <div className="p-3.5 bg-violet-50 dark:bg-violet-950/40 rounded-xl border border-violet-200 dark:border-violet-800 text-xs text-violet-800 dark:text-violet-300 flex items-center justify-between">
+              <div className="p-3.5 bg-accent/10 rounded-xl border border-accent/30 text-xs text-accent flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-violet-600 shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
                   <span>
                     ¡Orden <b>#{reconciliation.orderNumber}</b> finalizada con éxito!
                   </span>
                 </div>
                 <Link
                   href={`/orders/${reconciliation.orderNumber}/reconciliation`}
-                  className="text-violet-700 dark:text-violet-300 font-semibold underline flex items-center gap-1 hover:text-violet-900"
+                  className="text-accent font-semibold underline flex items-center gap-1 hover:text-accent"
                 >
                   Ver Conciliación <ExternalLink className="h-3 w-3" />
                 </Link>
               </div>
             )}
 
-            {reconciliation && <dl aria-label="Conciliación recibida del pesaje final" className="grid grid-cols-2 gap-3 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 text-xs tabular-nums">
+            {reconciliation && <dl aria-label="Conciliación recibida del pesaje final" className="grid grid-cols-2 gap-3 rounded-xl border border-line p-4 text-xs tabular-nums">
               {[
                 ["Tara", formatKg(reconciliation.tare)],
                 ["Pesaje final", formatKg(reconciliation.finalWeight)],
@@ -261,7 +261,7 @@ export function TmsScaleControl({ orders, onOrderUpdated }: TmsScaleControlProps
                 ["Temperatura media", reconciliation.averageTemperature === null ? "Sin datos" : formatTemperature(reconciliation.averageTemperature)],
                 ["Densidad media", reconciliation.averageDensity === null ? "Sin datos" : formatDensity(reconciliation.averageDensity)],
                 ["Caudal medio", reconciliation.averageFlowRate === null ? "Sin datos" : formatFlowRate(reconciliation.averageFlowRate)],
-              ].map(([label, value]) => <div key={label}><dt className="text-zinc-500">{label}</dt><dd className="font-semibold mt-1">{value}</dd></div>)}
+              ].map(([label, value]) => <div key={label}><dt className="text-muted">{label}</dt><dd className="font-semibold mt-1">{value}</dd></div>)}
             </dl>}
 
             <Button
@@ -270,7 +270,7 @@ export function TmsScaleControl({ orders, onOrderUpdated }: TmsScaleControlProps
               size="sm"
               isLoading={isFinalLoading}
               disabled={state3Orders.length === 0}
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white"
+              className="w-full "
             >
               Registrar Pesaje Final & Conciliar (Punto 5)
             </Button>

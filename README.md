@@ -1,4 +1,8 @@
-# Liquid Gas Monitoring UI (Frontend)
+# AetherLoad — Terminal de carga de gas
+
+<img src="public/brand/aetherload-logo.png" alt="AetherLoad" width="180" />
+
+Identidad visual, componentes y reglas de accesibilidad: [guía de estilos](docs/styling.txt). Implementación y verificaciones: [estilos de AetherLoad](docs/estilos-aetherload.md).
 
 Interfaz web interactiva orientada a la visualización y control operativo del circuito de carga de gas líquido en planta. Diseñada con Next.js (App Router), componentes modulares y gestión de estado para garantizar sincronización en tiempo real.
 
