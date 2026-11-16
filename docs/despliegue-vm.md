@@ -64,9 +64,7 @@ Todos desde `ssh user@143.0.100.187`. **Nunca** pegar secretos en el chat ni en 
 
 | Pendiente | Qué hace falta |
 |---|---|
-| ~~Correo real (SMTP, D-12)~~ | **Hecho** el 16/11/2026 (sección 8). Falta solo que la persona destinataria confirme que el mensaje llegó a su casilla |
-| Revocar la contraseña de aplicación | Se compartió por chat para esta tarea: conviene **revocarla** en https://myaccount.google.com/apppasswords cuando pase la defensa (y generar otra si se vuelve a necesitar) |
-| Contraseña SSH de la VM | Se compartió por chat para esta tarea: conviene cambiarla (`passwd`) |
+| ~~Correo real (SMTP, D-12)~~ | **Hecho y confirmado** el 16/11/2026: el destinatario recibió el mensaje (sección 8) |
 | Datos de prueba | Las órdenes y alarmas de prueba siguen en la base de producción; se pueden dejar (es el entorno de la materia) o limpiar con el SQL de `CLAUDE.md` del backend, sección 12 |
 | Limpiar los 120 commits con coautor de Claude del `main` del backend | Exige `push --force` y coordinar con el equipo (rama `main-limpio` guardada en una copia local) |
 
@@ -76,6 +74,7 @@ Todos desde `ssh user@143.0.100.187`. **Nunca** pegar secretos en el chat ni en 
 - **`http://localhost:3000` no está permitido** por CORS en la VM. Quien quiera probar un frontend local contra la API de la VM debe agregar ese origen a `CORS_ALLOWED_ORIGINS` (no se hizo para no abrir de más).
 - **Un login tardó 22 s una vez** durante la prueba con Chrome (el resto, entre 170 y 400 ms; la VM tiene 1 vCPU y estaba tranquila). No se repitió y no se encontró causa; queda como observación.
 - **Esto no cambió el código ni el CI de ningún repositorio.**
+- **Decisión del usuario (16/11/2026): las credenciales se dejan como están.** La contraseña de aplicación de Gmail y la contraseña SSH de la VM, que se compartieron por chat para esta tarea, **no se rotan**: se dejan así a propósito, y por eso no figuran como pendientes. Quien lea esto debe saber que esas dos credenciales pasaron por una conversación.
 
 ## 8. Correo real (SMTP), 16/11/2026
 
@@ -92,6 +91,6 @@ Todos desde `ssh user@143.0.100.187`. **Nunca** pegar secretos en el chat ni en 
 2. Una lectura a **38 °C**: guardada (`saved: true`) y **alarma `PENDING` creada**; ocho segundos después el backend registró `emailSentAt` (el servidor de Gmail aceptó el mensaje). El log no muestra errores de correo.
 3. Una segunda lectura caliente (39 °C): guardada, **sin segunda alarma ni segundo correo** (D-3: una pendiente por orden).
 
-**Lo que NO se pudo comprobar desde acá:** que el mensaje esté en la bandeja de entrada (o en *spam*) del destinatario. `emailSentAt` indica que Gmail aceptó el envío, no que se haya leído. La confirmación la da la persona destinataria.
+**Confirmación de recepción:** `emailSentAt` indica que Gmail aceptó el envío; la llegada a la casilla la confirmó la persona destinataria (Martín González, 16/11/2026): **el correo llegó**.
 
 La base de producción quedó con **62 órdenes y 4 alarmas** (las nuevas son de prueba).
