@@ -1,6 +1,6 @@
 # Fase 10 — Calidad, documentación y ensayo de defensa
 
-**Rama:** `fase-10-calidad` (desde `main`, `5ef94ea`) · **Fecha:** 13/11/2026 · **Estado:** implementada y probada en lo que **no** toca la VM (sin commitear al escribir este informe)
+**Rama:** `fase-10-calidad` (desde `main`, `5ef94ea`) · **Fecha:** 13/11/2026 · **Estado:** integrada en `main` (PR #8, 15/11/2026). Lo que tocaba la VM (T3 a T5) se hizo después, el 16/11/2026: ver `docs/despliegue-vm.md`
 **Objetivo:** cerrar el frontend con una revisión transversal de calidad, pruebas que protejan las reglas del proyecto, la documentación y la guía para rendir.
 **Alcance acordado:** T1, T2, T6 y T7. Las tareas que tocan la VM (T3 despliegue, T4 variables y datos, T5 prueba de punta a punta allá) **quedaron fuera** por decisión del usuario; de T3 se hizo solo el análisis de la configuración del repositorio, sin acceder a la VM.
 
@@ -11,7 +11,7 @@
 | T1 · Revisión transversal | Accesibilidad con **axe-core** (WCAG 2.0/2.1 A y AA) en **10 pantallas × 2 tamaños** (escritorio 1400 px y móvil 390 px): se encontraron **2 problemas** y se corrigieron; ahora **0 violaciones y 0 pantallas con desborde horizontal**. Estados de **error** (backend caído desde la primera carga) y **vacío** verificados en las 6 pantallas con datos: 15 comprobaciones, 0 fallas. `any`, `console`, supresiones de lint y `TODO`: 0 |
 | T2 · Pruebas | 19 tests nuevos (181 en total): `formatters.test.mjs` (10) y `architecture.test.mjs` (9, ver 2.2). 6 mutaciones detectadas |
 | T3 · Despliegue (solo análisis, sin tocar la VM) | Ver la sección 4: la configuración del repositorio es coherente; el riesgo de contenido mixto y lo que falta configurar en la VM quedaron documentados |
-| T4 y T5 | **No se hicieron** (requieren acceso a la VM): ver la sección 6 |
+| T4 y T5 | **Hechas el 16/11/2026** con acceso del usuario: variables de entorno, roles y usuarios, y prueba de punta a punta en la VM (110 verificaciones con Chrome). Detalle en `docs/despliegue-vm.md` |
 | T6 · README y guía de estudio | `README.md` actualizado (roles, backend local, usuarios de desarrollo, pruebas, índice de documentación) y **`docs/guia-de-estudio.md`** nueva |
 | T7 · Ensayo de defensa | En la guía: 28 preguntas cruzadas (roles y seguridad, alarmas, órdenes y tiempo, conciliación, arquitectura), el guion de una demostración de 10 minutos y los límites conocidos |
 
