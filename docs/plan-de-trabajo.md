@@ -268,7 +268,7 @@ un rol no autorizado no ve el botón de aceptar y, si lo fuerza, recibe un 403 c
 
 ### 4.10 Fase 10 — Calidad, despliegue y ensayo de defensa
 
-> **Estado (13/11/2026): implementada y probada en lo que no toca la VM** (rama `fase-10-calidad`). Hechas T1, T2, T6 y T7; de T3 solo el análisis de la configuración. **T4 y T5 (variables y prueba de punta a punta en la VM) quedan pendientes** por decisión del usuario. 181 tests, axe-core sin violaciones, guía de estudio con 28 preguntas. Informe: `docs/fase-10-calidad.md`.
+> **Estado (16/11/2026): integrada en `main` (PR #8, 15/11/2026) y la VM configurada.** T1, T2, T6 y T7 hechas; **T3, T4 y T5 hechas el 16/11/2026** (`docs/despliegue-vm.md`): `JWT_SECRET` y CORS por variables de entorno en `~/infra`, 5 roles y 6 usuarios nuevos, 98 verificaciones de la API y 110 con Chrome real contra el frontend desplegado. **SMTP real configurado y probado el 16/11/2026, con recepción confirmada.** 181 tests, axe-core sin violaciones, guía de estudio con 28 preguntas. Informe: `docs/fase-10-calidad.md`.
 
 | Tarea | Detalle |
 |---|---|
