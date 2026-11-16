@@ -1,6 +1,6 @@
 # Fase 6 — Órdenes: listado, filtros, monitoreo, detalle, ETA y tiempo transcurrido
 
-**Rama:** `fase-6-ordenes` (desde `main`, `d1ce4d6`) · **Fecha:** 12/11/2026 · **Estado:** implementada y probada (sin commitear)
+**Rama:** `fase-6-ordenes` (desde `main`, `d1ce4d6`) · **Fecha:** 12/11/2026 · **Estado:** integrada en `main` (PR #6) y desplegada
 **Objetivo:** que la administración y el monitoreo de órdenes (consigna 4b, 4c y 4d) usen los datos reales del backend, se actualicen solos y calculen bien la ETA y el tiempo transcurrido.
 **Regla 9 (Next 16):** se mantiene lo leído en la Fase 5 (sin `usePathname`/`useSearchParams` nuevos; la página de detalle recibe `params` como `Promise` y la resuelve con `React.use` dentro de `Suspense`).
 

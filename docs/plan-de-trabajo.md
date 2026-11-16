@@ -168,7 +168,7 @@ la lectura nunca falla por el correo; sin duplicados bajo concurrencia; el circu
 
 ### 4.4 Fase 4 — Conexión real: cliente HTTP, tipos y errores
 
-> **Estado (12/11/2026): implementada, probada y pusheada** (rama `fase-4-conexion`, sin PR). T1 a T6 hechas. 83 tests (también con Node 22), lint y build en verde, tipos contrastados con el JSON del backend vivo y 33 verificaciones con Chrome real. La prueba con Chrome encontró un defecto que los tests no veían (el login real viene como `application/json` con el token pelado) y que explica por qué el login de la UI vieja siempre caía al mock. Informe: `docs/fase-4-conexion.md`.
+> **Estado (12/11/2026): integrada en `main` (PR #4) y desplegada**. T1 a T6 hechas. 83 tests (también con Node 22), lint y build en verde, tipos contrastados con el JSON del backend vivo y 33 verificaciones con Chrome real. La prueba con Chrome encontró un defecto que los tests no veían (el login real viene como `application/json` con el token pelado) y que explica por qué el login de la UI vieja siempre caía al mock. Informe: `docs/fase-4-conexion.md`.
 
 | Tarea | Detalle |
 |---|---|
@@ -184,7 +184,7 @@ distingue y comunica cada código; lint, test y build pasan. Los `*Api.ts` de ca
 
 ### 4.5 Fase 5 — Autenticación, sesión, rutas protegidas y roles en la UI
 
-> **Estado (12/11/2026): implementada y probada** (rama `fase-5-autenticacion`, sin commitear). T1 a T7 hechas. 116 tests (33 nuevos), 5 mutaciones detectadas, lint y build en verde y 95 verificaciones con Chrome real contra el backend (login, vencimiento, 401 y los 6 roles). Las pantallas de órdenes y alarmas siguen siendo las heredadas (listas vacías con el backend real) hasta las Fases 6 y 8. Informe: `docs/fase-5-autenticacion.md`.
+> **Estado (12/11/2026): integrada en `main` (PR #5) y desplegada**. T1 a T7 hechas. 116 tests (33 nuevos), 5 mutaciones detectadas, lint y build en verde y 95 verificaciones con Chrome real contra el backend (login, vencimiento, 401 y los 6 roles). Las pantallas de órdenes y alarmas siguen siendo las heredadas (listas vacías con el backend real) hasta las Fases 6 y 8. Informe: `docs/fase-5-autenticacion.md`.
 
 | Tarea | Detalle |
 |---|---|
@@ -201,7 +201,7 @@ ve solo lo que le corresponde (verificado con los usuarios sembrados); el 403 de
 
 ### 4.6 Fase 6 — Órdenes: listado, filtros, monitoreo, detalle, ETA y tiempo transcurrido (consigna 4b, 4c, 4d)
 
-> **Estado (12/11/2026): implementada y probada** (rama `fase-6-ordenes`, sin commitear). T1 a T9 hechas, salvo la **búsqueda por texto de T2**: el backend no la ofrece y hacerla en el cliente solo miraría la página actual (queda como limitación, decisión F-2). 127 tests, 5 mutaciones y 93 verificaciones con Chrome real. Informe: `docs/fase-6-ordenes.md`.
+> **Estado (12/11/2026): integrada en `main` (PR #6) y desplegada**. T1 a T9 hechas, salvo la **búsqueda por texto de T2**: el backend no la ofrece y hacerla en el cliente solo miraría la página actual (queda como limitación, decisión F-2). 127 tests, 5 mutaciones y 93 verificaciones con Chrome real. Informe: `docs/fase-6-ordenes.md`.
 
 | Tarea | Detalle |
 |---|---|
@@ -220,7 +220,7 @@ el ETA y el tiempo transcurrido coinciden con un cálculo manual; el tiempo tran
 
 ### 4.7 Fase 7 — Conciliación (consigna 4f)
 
-> **Estado (13/11/2026): implementada y probada** (rama `fase-7-conciliacion`). T1 a T5 hechas. 139 tests (12 nuevos), lint y build en verde. Conexión a `GET /orders/{orderNumber}/reconciliation` combinada con `getOrder` para remito imprimible, cálculo seguro de porcentaje derivado y manejo de 409. Informe: `docs/fase-7-conciliacion.md`.
+> **Estado (13/11/2026): integrada en `main` (PR #7) y desplegada**. T1 a T5 hechas. 139 tests (12 nuevos), lint y build en verde. Conexión a `GET /orders/{orderNumber}/reconciliation` combinada con `getOrder` para remito imprimible, cálculo seguro de porcentaje derivado y manejo de 409. Informe: `docs/fase-7-conciliacion.md`.
 
 | Tarea | Detalle |
 |---|---|
@@ -234,7 +234,7 @@ el ETA y el tiempo transcurrido coinciden con un cálculo manual; el tiempo tran
 
 ### 4.8 Fase 8 — Alarmas en la UI (consigna 4e)
 
-> **Estado (13/11/2026): implementada y probada** (rama `fase-8-alarmas`). T1 a T6 hechas. 152 tests (13 nuevos de validación), lint con 1 sola advertencia (legacy), build en verde. Consumo real de los 4 endpoints de `/alarms`, banner global, modal de aceptación sin username en payload (D-5), visualización de `emailSentAt` y formulario de configuración con validación estricta. Informe: `docs/fase-8-alarmas.md`.
+> **Estado (13/11/2026): integrada en `main` (PR #7) y desplegada**. T1 a T6 hechas. 152 tests (13 nuevos de validación), lint con 1 sola advertencia (legacy), build en verde. Consumo real de los 4 endpoints de `/alarms`, banner global, modal de aceptación sin username en payload (D-5), visualización de `emailSentAt` y formulario de configuración con validación estricta. Informe: `docs/fase-8-alarmas.md`.
 
 | Tarea | Detalle |
 |---|---|
@@ -250,7 +250,7 @@ un rol no autorizado no ve el botón de aceptar y, si lo fuerza, recibe un 403 c
 
 ### 4.9 Fase 9 — Simulador de integración real
 
-> **Estado (13/11/2026): implementada y probada** (rama `fase-9-simulador`, sin commit). T1 a T7 hechas. 162 tests, lint sin advertencias y build en verde; **70 verificaciones en Chrome contra Spring Boot y MySQL locales**, con circuito completo, errores 302/400/403, alarma y correo capturado por SMTP local, conciliación y restricción de los cinco roles sin ADMIN. Se eliminaron el mock y los tipos heredados. La entrega del correo a una casilla externa y la prueba en la VM siguen pendientes para el cierre. Informe: `docs/fase-9-simulador.md`.
+> **Estado (13/11/2026): integrada en `main` (PR #7) y desplegada**. T1 a T7 hechas. 162 tests, lint sin advertencias y build en verde; **70 verificaciones en Chrome contra Spring Boot y MySQL locales**, con circuito completo, errores 302/400/403, alarma y correo capturado por SMTP local, conciliación y restricción de los cinco roles sin ADMIN. Se eliminaron el mock y los tipos heredados. La entrega del correo a una casilla externa y la prueba en la VM siguen pendientes para el cierre. Informe: `docs/fase-9-simulador.md`.
 
 **Objetivo:** que el simulador recorra el circuito real (Puntos 1 a 5) para la demostración, hablando con los endpoints verdaderos.
 
@@ -267,6 +267,8 @@ un rol no autorizado no ve el botón de aceptar y, si lo fuerza, recibe un 403 c
 **Criterios:** el circuito completo se recorre solo desde la interfaz contra el backend real; cada respuesta de error del backend se ve tal cual; no queda ninguna referencia al mock.
 
 ### 4.10 Fase 10 — Calidad, despliegue y ensayo de defensa
+
+> **Estado (13/11/2026): implementada y probada en lo que no toca la VM** (rama `fase-10-calidad`). Hechas T1, T2, T6 y T7; de T3 solo el análisis de la configuración. **T4 y T5 (variables y prueba de punta a punta en la VM) quedan pendientes** por decisión del usuario. 181 tests, axe-core sin violaciones, guía de estudio con 28 preguntas. Informe: `docs/fase-10-calidad.md`.
 
 | Tarea | Detalle |
 |---|---|

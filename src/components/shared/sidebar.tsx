@@ -20,7 +20,7 @@ function SidebarContents({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { can } = useAuth();
   return <>
-    <Link href="/" onClick={onNavigate} aria-label="AetherLoad · Inicio" className="mb-12 block px-4 pt-8"><Brand compact /></Link>
+    <Link href="/" onClick={onNavigate} className="mb-12 block px-4 pt-8"><Brand compact /></Link>
     <p className="eyebrow mb-4 px-5">Operación de terminal</p>
     <nav aria-label="Navegación principal" className="space-y-2 px-3">
       {NAV_ITEMS.filter((item) => can(item.permission)).map((item) => {
@@ -28,7 +28,7 @@ function SidebarContents({ onNavigate }: { onNavigate?: () => void }) {
         return <Link key={item.href} href={item.href} onClick={onNavigate} aria-current={active ? "page" : undefined}
           className={cn("group relative flex items-center gap-3 rounded-lg border px-4 py-3.5 text-sm font-medium transition-colors", active ? "border-accent/20 bg-accent/10 text-accent" : "border-transparent text-muted hover:bg-elevated hover:text-foreground")}>
           {active && <span className="absolute -left-3 h-6 w-0.5 rounded-full bg-accent" />}
-          <item.icon className="h-[18px] w-[18px] shrink-0" /><span>{item.label}</span><span className="ml-auto font-mono text-xs opacity-60">{item.number}</span>
+          <item.icon className="h-[18px] w-[18px] shrink-0" /><span>{item.label}</span><span className="ml-auto font-mono text-xs">{item.number}</span>
         </Link>;
       })}
     </nav>
