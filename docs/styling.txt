@@ -143,6 +143,17 @@ Campos (Input, Select y clase control-input):
 - Agrupar por propósito: orden, transporte, programación, cliente/producto.
 - No ocultar errores reales ni cambiar los mensajes del backend por éxito.
 
+Calendario (components/ui/date-time-picker.tsx):
+- La fecha prevista del simulador usa un diálogo con fondo panel, campos
+  shell, selección accent y bordes line; no abre el calendario del navegador.
+- Semana de lunes a domingo, nombres en español, navegación mensual y Hoy.
+- Hora y minutos explícitos en formato de 24 horas. Conservar la hora de
+  Argentina en el formulario, sin convertirla según la zona del navegador.
+- Flechas recorren días y semanas; Re Pág/Av Pág cambian de mes (con Mayús,
+  de año); Inicio/Fin recorren la semana. Enter o Espacio seleccionan el día.
+- Aplicar confirma; Cancelar y Escape descartan. Al cerrar, devolver el foco
+  al campo. Conservar validación obligatoria y envío mediante FormData.
+
 Tarjetas y diálogos:
 - Fondo panel, borde line, títulos legibles y espacio consistente.
 - Los diálogos usan el elemento nativo dialog: contienen el foco, permiten
@@ -181,6 +192,19 @@ Tarjetas y diálogos:
 - Carga, vacío, error y falta de permisos conservan mensajes identificables.
 - La temperatura puede medirse sin que exista una alarma: la condición
   real la determina el backend con el umbral vigente.
+
+Correo de alerta de temperatura:
+- Se genera y envía desde el backend del repositorio iw3, mediante
+  TemperatureAlarmEmail y EmailBusiness.sendHtmlMessage.
+- Usar cabecera AetherLoad, la paleta de marca y una redacción formal.
+  Destacar temperatura registrada, umbral y estado al momento del aviso.
+- Incluir orden, patente, cliente, producto, fecha y hora de Argentina,
+  acción requerida y política de aviso único mientras siga pendiente.
+- El HTML utiliza tablas y estilos inline, sin recursos externos. Usar
+  tipografía sans serif disponible en el cliente de correo como respaldo.
+- Enviar UTF-8 con alternativas HTML y texto plano; escapar los datos
+  dinámicos del HTML. Mantener el envío asíncrono posterior al commit y
+  el registro de emailSentAt según el resultado real del envío.
 
 ## 9. Conciliación e impresión
 

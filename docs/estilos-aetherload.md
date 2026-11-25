@@ -85,3 +85,40 @@ La revisión automatizada de texto combina colores computados y fondos de los el
 - Usar texto `danger-ink` sobre superficies oscuras y tintes de error; reservar el color `danger` para fondos, bordes e indicadores.
 - Mantener los mensajes del backend y los estados de datos ausentes. El tema visual no crea información de conexión ni altera los permisos.
 - Al agregar una pantalla, revisar móvil, teclado, estado de error, tabla desplazable y contraste. El remito debe conservar su excepción clara y su aislamiento de impresión.
+
+## Calendario y correo de temperatura · 25/11/2026
+
+La fecha prevista del simulador SAP utiliza `DateTimePicker`, con el diálogo,
+los controles y los tokens de AetherLoad. Incluye selección de día, hora y
+minutos, navegación mensual, Hoy, confirmación y cancelación. Conserva el
+campo obligatorio de `FormData` y el formato local que recibe el backend.
+La aritmética del calendario se prueba con semanas completas, cambios de
+mes y año y años bisiestos.
+
+El correo real se modificó en `/home/joa/repos/iw3`: `TemperatureAlarmEmail`
+prepara asunto, texto y HTML; el evento transporta ambas versiones y
+`EmailBusiness.sendHtmlMessage` las envía en UTF-8. La presentación utiliza
+los colores de marca, datos operativos y una redacción formal. El HTML
+escapa datos dinámicos y utiliza tablas y estilos inline sin descargar
+fuentes, imágenes ni hojas de estilo. Se conserva el envío asíncrono después
+del commit, por destinatario, y la política de una alarma pendiente por orden.
+
+Validación local de esta corrección:
+
+- Frontend: lint sin advertencias, 185 pruebas aprobadas y compilación de
+  producción correcta, incluida la comprobación de TypeScript.
+- Backend: `./mvnw test`, 253 pruebas aprobadas; se verificaron datos de la
+  plantilla, escape del HTML, alternativas HTML/texto, UTF-8, remitentes y
+  comportamiento ante fallos del envío.
+- Chromium sobre la compilación de producción: validación obligatoria,
+  teclado, selección de hora, Aplicar, Cancelar, Escape, devolución del foco
+  y conservación de la fecha/hora enviada. Se usaron respuestas de API
+  interceptadas, sin crear órdenes ni cambiar configuración en el servidor.
+  Se comprobaron escritorio y móvil, con navegadores en zonas horarias de
+  Argentina y Tokio; el valor enviado conservó la hora elegida de Argentina.
+- Vista previa generada desde la plantilla Java real: 800 y 375 px de ancho,
+  sin desbordamiento ni solicitudes de recursos externos.
+
+Estas verificaciones no incluyen entrega a casillas externas ni renderizado
+en clientes de correo específicos. Los cambios son locales; requieren
+desplegar frontend y backend para que se reflejen en el sistema publicado.
