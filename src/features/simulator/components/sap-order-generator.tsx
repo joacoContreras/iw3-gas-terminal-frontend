@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Button } from "@/components/ui/button";
 import { simulatorApi } from "../services/simulatorApi";
 import { errorMessage, isApiError } from "@/services/api/client";
@@ -62,7 +63,7 @@ export function SapOrderGenerator({ onOrderCreated }: { onOrderCreated: (orderNu
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Input label="Número de orden" name="orderNumber" type="number" min="1" max="2147483647" step="1" required />
               <Input label="Preset (kg)" name="preset" type="number" min="0.01" step="any" defaultValue="15000" required />
-              <Input label="Fecha prevista (hora de Argentina)" name="plannedLoadDateTime" type="datetime-local" required />
+              <DateTimePicker label="Fecha prevista (hora de Argentina)" name="plannedLoadDateTime" required />
             </div>
             <fieldset className="space-y-3 border-t border-line pt-4">
               <legend className="text-sm font-semibold">Camión y cisternas</legend>
