@@ -105,7 +105,7 @@ del commit, por destinatario, y la política de una alarma pendiente por orden.
 
 Validación local de esta corrección:
 
-- Frontend: lint sin advertencias, 166 pruebas aprobadas y compilación de
+- Frontend: lint sin advertencias, 185 pruebas aprobadas y compilación de
   producción correcta, incluida la comprobación de TypeScript.
 - Backend: `./mvnw test`, 253 pruebas aprobadas; se verificaron datos de la
   plantilla, escape del HTML, alternativas HTML/texto, UTF-8, remitentes y
